@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polish Vocabulary — Busuu</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<script src="js/vocabulary-data.js"></script>
+<script src="js/shared.js" defer></script>
+<style>
+/* ===== Vocabulary Page Styles ===== */
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: 0;
+  padding: 12px 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-item {
+  padding: 8px 18px;
+  background: var(--bg-alt);
+  border-radius: 99px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.stat-item .stat-num {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-right: 4px;
+}
+
+.stat-item.total {
+  background: var(--red);
+  color: #fff;
+}
+
+/* Filter bar (vocabulary-specific) */
+.vocab-filter-bar {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  transition: background var(--ease);
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px 10px 40px;
+  border: 2px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.95rem;
+  background: var(--bg);
+  color: var(--text);
+  transition: all var(--ease);
+  outline: none;
+}
+
+.search-box:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220,20,60,0.12);
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.filter-select {
+  padding: 10px 32px 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.88rem;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all var(--ease);
+}
+
+.filter-select:focus {
+  border-color: var(--red);
+}
+
+/* Main content */
+.vocab-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-5) 80px;
+}
+
+.results-info {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-5);
+  padding-left: var(--sp-1);
+}
+
+/* Theme sections */
+.theme-section {
+  margin-bottom: var(--sp-4);
+}
+
+.theme-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--ease);
+  box-shadow: var(--shadow);
+}
+
+.theme-header:hover {
+  border-color: var(--red);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+.theme-header.open {
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom-color: transparent;
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: white;
+  border-color: var(--red);
+}
+
+.theme-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.theme-icon {
+  font-size: 1.3rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(220,20,60,0.08);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.theme-header.open .theme-icon {
+  background: rgba(255,255,255,0.2);
+}
+
+.theme-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.theme-count {
+  font-size: 0.82rem;
+  opacity: 0.6;
+  margin-left: 4px;
+}
+
+.theme-chevron {
+  transition: transform 0.3s ease;
+  opacity: 0.5;
+}
+
+.theme-header.open .theme-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.theme-body {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.theme-body.open {
+  display: block;
+}
+
+/* Word cards */
+.word-card {
+  display: flex;
+  align-items: center;
+  padding: 14px var(--sp-5);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--ease);
+  gap: var(--sp-3);
+}
+
+.word-card:last-child {
+  border-bottom: none;
+}
+
+.word-card:hover {
+  background: rgba(220,20,60,0.03);
+}
+
+[data-theme="dark"] .word-card:hover {
+  background: rgba(220,20,60,0.06);
+}
+
+.word-polish {
+  font-weight: 600;
+  font-size: 1.05rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.word-english {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.word-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.type-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.type-verb { background: #dbeafe; color: #1e40af; }
+.type-noun { background: #dcfce7; color: #166534; }
+.type-adjective { background: #ffedd5; color: #9a3412; }
+.type-adverb { background: #fef3c7; color: #92400e; }
+.type-phrase { background: #f3e8ff; color: #6b21a8; }
+.type-number { background: #e0e7ff; color: #3730a3; }
+.type-pronoun { background: #fce7f3; color: #9d174d; }
+.type-conjunction { background: #ccfbf1; color: #115e59; }
+.type-particle { background: #f1f5f9; color: #475569; }
+
+[data-theme="dark"] .type-verb { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .type-noun { background: #14532d; color: #86efac; }
+[data-theme="dark"] .type-adjective { background: #431407; color: #fdba74; }
+[data-theme="dark"] .type-adverb { background: #451a03; color: #fcd34d; }
+[data-theme="dark"] .type-phrase { background: #3b0764; color: #d8b4fe; }
+[data-theme="dark"] .type-number { background: #1e1b4b; color: #a5b4fc; }
+[data-theme="dark"] .type-pronoun { background: #500724; color: #f9a8d4; }
+[data-theme="dark"] .type-conjunction { background: #042f2e; color: #5eead4; }
+[data-theme="dark"] .type-particle { background: #1e293b; color: #94a3b8; }
+
+.strength-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.strength-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background var(--ease);
+}
+
+.strength-dot.filled {
+  background: var(--red);
+}
+
+.strength-dot.filled.s-strong { background: #22c55e; }
+.strength-dot.filled.s-medium { background: #f59e0b; }
+.strength-dot.filled.s-weak { background: var(--red); }
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.no-results svg {
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.no-results p {
+  font-size: 1.1rem;
+}
+
+/* Responsive — tablet */
+@media (max-width: 768px) {
+  .stats-bar { padding: 8px 16px; }
+  .vocab-filter-bar { padding: 12px 16px; }
+  .vocab-container { padding: 16px 12px 60px; }
+  .search-box { min-width: 100%; }
+  .search-wrap { min-width: 100%; }
+  .filter-select { flex: 1; min-width: 0; }
+  .word-card {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .word-polish { flex: 0 0 100%; }
+  .word-english { flex: 0 0 100%; font-size: 0.88rem; }
+  .word-meta { margin-top: 4px; }
+  .theme-header { padding: 14px 16px; }
+}
+
+/* Responsive — small mobile */
+@media (max-width: 480px) {
+  .stats-bar { padding: 6px 10px; gap: 0; }
+  .stat-item { padding: 6px 10px; font-size: 0.75rem; }
+  .stat-item .stat-num { font-size: 0.9rem; }
+  .vocab-filter-bar { padding: 10px; gap: 8px; }
+  .vocab-container { padding: 10px 8px 60px; }
+  .word-card { padding: 10px 12px; }
+  .theme-header { padding: 12px; }
+  .theme-name { font-size: 0.95rem; }
+  .theme-icon { width: 30px; height: 30px; font-size: 1.1rem; }
+  .filter-select { font-size: 0.82rem; padding: 8px 28px 8px 10px; }
+}
+
+/* Cross-links */
+.cross-links { margin-top: var(--sp-10); padding-top: var(--sp-8); border-top: 1px solid var(--border); }
+.cross-links h3 { margin-bottom: var(--sp-4); }
+.cross-links__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
+.cross-link-card {
+  display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-5);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text); transition: all 0.25s;
+}
+.cross-link-card:hover { border-color: var(--red); transform: translateY(-2px); box-shadow: var(--shadow-hover); color: var(--text); }
+.cross-link-icon { font-size: 1.5rem; }
+.cross-link-title { font-weight: 600; font-size: 0.95rem; }
+.cross-link-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Animations */
+.theme-body.open {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.word-card {
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<div id="main-content">
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="vocab-filter-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" class="search-box" id="search" placeholder="Search Polish or English..." autocomplete="off" aria-label="Search vocabulary">
+    </div>
+    <select class="filter-select" id="filter-theme" aria-label="Filter by theme"><option value="">All Themes</option></select>
+    <select class="filter-select" id="filter-type" aria-label="Filter by word type"><option value="">All Types</option></select>
+    <select class="filter-select" id="filter-strength" aria-label="Filter by strength"><option value="">All Strengths</option></select>
+  </div>
+
+  <div class="vocab-container" id="main"></div>
+
+  <div class="vocab-container">
+    <div class="cross-links">
+      <h3>Practice Your Vocabulary</h3>
+      <div class="cross-links__grid">
+        <a href="quiz-pl-en.html" class="cross-link-card">
+          <span class="cross-link-icon">🇵🇱→🇬🇧</span>
+          <span class="cross-link-title">Polish → English Quiz</span>
+          <span class="cross-link-desc">Test if you can translate Polish words</span>
+        </a>
+        <a href="quiz-en-pl.html" class="cross-link-card">
+          <span class="cross-link-icon">🇬🇧→🇵🇱</span>
+          <span class="cross-link-title">English → Polish Quiz</span>
+          <span class="cross-link-desc">Practice writing Polish words</span>
+        </a>
+        <a href="grammar.html" class="cross-link-card">
+          <span class="cross-link-icon">📚</span>
+          <span class="cross-link-title">Grammar Book</span>
+          <span class="cross-link-desc">Learn the rules behind these words</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const VOCAB_DATA = VOCABULARY_DATA;
+
+const THEME_MAP = {
+  body_health: { label: "Body & Health", icon: "🏥" },
+  clothing_accessories: { label: "Clothing & Accessories", icon: "👗" },
+  colors: { label: "Colors", icon: "🎨" },
+  daily_routines: { label: "Daily Routines", icon: "☀️" },
+  family_relationships: { label: "Family & Relationships", icon: "👨‍👩‍👧" },
+  food_cooking: { label: "Food & Cooking", icon: "🍳" },
+  grammar_sentences: { label: "Grammar Sentences", icon: "📝" },
+  greetings_basics: { label: "Greetings & Basics", icon: "👋" },
+  hobbies_activities: { label: "Hobbies & Activities", icon: "⚽" },
+  home_furniture: { label: "Home & Furniture", icon: "🏠" },
+  numbers: { label: "Numbers", icon: "🔢" },
+  personality_appearance: { label: "Personality & Appearance", icon: "😊" },
+  shopping: { label: "Shopping", icon: "🛍️" },
+  travel_transport: { label: "Travel & Transport", icon: "✈️" },
+  useful_phrases: { label: "Useful Phrases", icon: "💬" },
+  weather_seasons: { label: "Weather & Seasons", icon: "🌤️" },
+  work_school: { label: "Work & School", icon: "💼" }
+};
+
+const TYPE_COLORS = {
+  verb: "type-verb",
+  noun: "type-noun",
+  adjective: "type-adjective",
+  adverb: "type-adverb",
+  phrase: "type-phrase",
+  number: "type-number",
+  pronoun: "type-pronoun",
+  conjunction: "type-conjunction",
+  particle: "type-particle"
+};
+
+const STRENGTH_VAL = { strong: 3, medium: 2, weak: 1 };
+
+// Filter out sentences
+const vocab = VOCAB_DATA.filter(e => e.type !== "sentence");
+
+// Populate filter dropdowns
+function populateFilters() {
+  const themes = [...new Set(vocab.map(e => e.theme))].sort();
+  const types = [...new Set(vocab.map(e => e.type))].sort();
+
+  const themeSelect = document.getElementById("filter-theme");
+  themes.forEach(t => {
+    const o = document.createElement("option");
+    o.value = t;
+    o.textContent = (THEME_MAP[t] || {}).label || t;
+    themeSelect.appendChild(o);
+  });
+
+  const typeSelect = document.getElementById("filter-type");
+  types.forEach(t => {
+    const o = document.createElement("option");
+    o.value = t;
+    o.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+    typeSelect.appendChild(o);
+  });
+
+  const strSelect = document.getElementById("filter-strength");
+  ["strong", "medium", "weak"].forEach(s => {
+    const o = document.createElement("option");
+    o.value = s;
+    o.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+    strSelect.appendChild(o);
+  });
+}
+
+function renderStats(filtered) {
+  const bar = document.getElementById("stats-bar");
+  const total = filtered.length;
+  const byType = {};
+  const byStr = { strong: 0, medium: 0, weak: 0 };
+  filtered.forEach(e => {
+    byType[e.type] = (byType[e.type] || 0) + 1;
+    byStr[e.strength]++;
+  });
+
+  let html = `<div class="stat-item total"><span class="stat-num">${total}</span> words</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${byStr.strong}</span> strong</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${byStr.medium}</span> medium</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#ef4444">${byStr.weak}</span> weak</div>`;
+
+  const topTypes = Object.entries(byType).sort((a,b) => b[1]-a[1]).slice(0, 4);
+  topTypes.forEach(([t, c]) => {
+    html += `<div class="stat-item"><span class="stat-num">${c}</span> ${t}s</div>`;
+  });
+
+  bar.innerHTML = html;
+}
+
+function getFiltered() {
+  const search = document.getElementById("search").value.toLowerCase().trim();
+  const theme = document.getElementById("filter-theme").value;
+  const type = document.getElementById("filter-type").value;
+  const strength = document.getElementById("filter-strength").value;
+
+  return vocab.filter(e => {
+    if (theme && e.theme !== theme) return false;
+    if (type && e.type !== type) return false;
+    if (strength && e.strength !== strength) return false;
+    if (search) {
+      const s = search;
+      if (!e.polish.toLowerCase().includes(s) && !e.english.toLowerCase().includes(s)) return false;
+    }
+    return true;
+  });
+}
+
+function makeStrengthDots(strength) {
+  const val = STRENGTH_VAL[strength] || 0;
+  const cls = "s-" + strength;
+  let html = '<div class="strength-dots" title="' + strength + '">';
+  for (let i = 0; i < 3; i++) {
+    html += `<div class="strength-dot ${i < val ? 'filled ' + cls : ''}"></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function render() {
+  const filtered = getFiltered();
+  renderStats(filtered);
+
+  const main = document.getElementById("main");
+
+  if (filtered.length === 0) {
+    main.innerHTML = `<div class="no-results">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M8 11h6"/></svg>
+      <p>No words match your filters</p>
+    </div>`;
+    return;
+  }
+
+  // Group by theme
+  const groups = {};
+  filtered.forEach(e => {
+    if (!groups[e.theme]) groups[e.theme] = [];
+    groups[e.theme].push(e);
+  });
+
+  // Sort themes by label
+  const themeOrder = Object.keys(groups).sort((a, b) => {
+    const la = (THEME_MAP[a] || {}).label || a;
+    const lb = (THEME_MAP[b] || {}).label || b;
+    return la.localeCompare(lb);
+  });
+
+  // Sort words within each theme
+  themeOrder.forEach(t => {
+    groups[t].sort((a, b) => a.polish.localeCompare(b.polish, 'pl'));
+  });
+
+  const info = document.getElementById("filter-theme").value || document.getElementById("search").value
+    ? `<div class="results-info">Showing ${filtered.length} of ${vocab.length} words</div>` : '';
+
+  let html = info;
+
+  themeOrder.forEach(theme => {
+    const tm = THEME_MAP[theme] || { label: theme, icon: "📚" };
+    const words = groups[theme];
+    const id = "theme-" + theme;
+
+    html += `<div class="theme-section">
+      <div class="theme-header" onclick="toggleThemeSection('${id}')" id="hdr-${id}" role="button" tabindex="0" aria-expanded="false" aria-controls="${id}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleThemeSection('${id}')}">
+        <div class="theme-header-left">
+          <div class="theme-icon">${tm.icon}</div>
+          <div>
+            <span class="theme-name">${tm.label}</span>
+            <span class="theme-count">(${words.length})</span>
+          </div>
+        </div>
+        <svg class="theme-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="theme-body" id="${id}">`;
+
+    words.forEach(w => {
+      html += `<div class="word-card">
+        <div class="word-polish">${escHtml(w.polish)}</div>
+        <div class="word-english">${escHtml(w.english)}</div>
+        <div class="word-meta">
+          <span class="type-badge ${TYPE_COLORS[w.type] || ''}">${w.type}</span>
+          ${makeStrengthDots(w.strength)}
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  main.innerHTML = html;
+
+  // If only one theme or search active, open all sections
+  if (themeOrder.length <= 3 || document.getElementById("search").value.trim()) {
+    themeOrder.forEach(t => toggleThemeSection("theme-" + t, true));
+  }
+}
+
+function escHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function toggleThemeSection(id, forceOpen) {
+  const body = document.getElementById(id);
+  const hdr = document.getElementById("hdr-" + id);
+  if (!body || !hdr) return;
+  if (forceOpen === true) {
+    body.classList.add("open");
+    hdr.classList.add("open");
+  } else {
+    body.classList.toggle("open");
+    hdr.classList.toggle("open");
+  }
+  hdr.setAttribute("aria-expanded", body.classList.contains("open"));
+}
+
+// Init
+(function() {
+  populateFilters();
+  render();
+
+  let debounce;
+  document.getElementById("search").addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(render, 200);
+  });
+  document.getElementById("filter-theme").addEventListener("change", render);
+  document.getElementById("filter-type").addEventListener("change", render);
+  document.getElementById("filter-strength").addEventListener("change", render);
+
+  // Add breadcrumbs
+  if (window.polishHub) {
+    const bc = window.polishHub.createBreadcrumbs([
+      {label: 'Home', href: 'index.html'},
+      {label: 'Vocabulary'}
+    ]);
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) mainContent.prepend(bc);
+  }
+})();
+
+</script>
+
+</body>
+</html>

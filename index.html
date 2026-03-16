@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polish Learning Hub — A1-A2 Study Companion</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<script src="js/shared.js" defer></script>
+<style>
+/* ── Page-specific variables ── */
+:root {
+  --navy-dark: #111d33;
+  --hero-overlay: rgba(27,42,74,0.92);
+  --section-alt: #eef1f5;
+  --tip-bg: #f8f9fa;
+  --stat-bar-bg: #e9ecef;
+}
+
+[data-theme="dark"] {
+  --hero-overlay: rgba(13,17,23,0.92);
+  --section-alt: #161b22;
+  --tip-bg: #1c2333;
+  --stat-bar-bg: #21262d;
+}
+
+/* ── Decorative flag stripe along top ── */
+body::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, #fff 50%, var(--red) 50%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+}
+
+/* ── Hero section ── */
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 40%, var(--navy-dark) 100%);
+  color: #fff;
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Subtle diagonal flag accent */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(220,20,60,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Polish eagle silhouette in CSS */
+.eagle-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  opacity: 0.03;
+  pointer-events: none;
+  font-size: 280px;
+  line-height: 1;
+  user-select: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero-flag {
+  display: inline-flex;
+  flex-direction: column;
+  width: 60px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  margin-bottom: 1.5rem;
+}
+.hero-flag .top { background: #fff; flex: 1; }
+.hero-flag .bottom { background: var(--red); flex: 1; }
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  color: #fff;
+}
+.hero h1 span { color: var(--red-light); }
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.8);
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--red);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.85rem 2rem;
+  border-radius: 50px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 4px 16px rgba(220,20,60,0.4);
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(220,20,60,0.5);
+  background: var(--red-light);
+  color: #fff;
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 900px;
+  margin: -2.5rem auto 0;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--red);
+  display: block;
+}
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* ── Section common ── */
+section {
+  padding: 4rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.section-subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  font-size: 1rem;
+}
+
+/* ── Resource cards grid ── */
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.resource-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.resource-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+}
+.resource-card.vocab::before { background: linear-gradient(90deg, var(--red), var(--red-light)); }
+.resource-card.grammar::before { background: linear-gradient(90deg, var(--navy), var(--navy-light)); }
+.resource-card.quiz-pl::before { background: linear-gradient(90deg, #28a745, #5cb85c); }
+.resource-card.quiz-en::before { background: linear-gradient(90deg, #f0ad4e, #f7c97e); }
+.resource-card.quiz-gr::before { background: linear-gradient(90deg, #6f42c1, #9b72d8); }
+
+.resource-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--red);
+}
+
+.resource-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+.resource-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.resource-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  flex: 1;
+  margin-bottom: 1.25rem;
+}
+
+.resource-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.tag {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  background: var(--stat-bar-bg);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resource-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s, transform 0.15s;
+  align-self: flex-start;
+}
+.resource-btn.primary {
+  background: var(--red);
+  color: #fff;
+}
+.resource-btn.primary:hover { background: var(--red-light); transform: translateY(-1px); color: #fff; }
+.resource-btn.navy {
+  background: var(--navy);
+  color: #fff;
+}
+.resource-btn.navy:hover { background: var(--navy-light); transform: translateY(-1px); color: #fff; }
+.resource-btn.green {
+  background: var(--green);
+  color: #fff;
+}
+.resource-btn.green:hover { background: #34c759; transform: translateY(-1px); color: #fff; }
+.resource-btn.orange {
+  background: #e8a020;
+  color: #fff;
+}
+.resource-btn.orange:hover { background: var(--orange); transform: translateY(-1px); color: #fff; }
+.resource-btn.purple {
+  background: #6f42c1;
+  color: #fff;
+}
+.resource-btn.purple:hover { background: #8255d0; transform: translateY(-1px); color: #fff; }
+
+/* ── Quick Stats from localStorage ── */
+.quick-stats-section {
+  background: var(--section-alt);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  margin-top: 1rem;
+}
+
+.quick-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.qs-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.qs-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.qs-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.qs-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.qs-value {
+  margin-left: auto;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.no-stats {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+/* ── Study Tips ── */
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.tip-card {
+  background: var(--tip-bg);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--red);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.tip-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.tip-card:nth-child(2) { border-left-color: var(--navy); }
+.tip-card:nth-child(3) { border-left-color: var(--green); }
+.tip-card:nth-child(4) { border-left-color: #6f42c1; }
+.tip-card:nth-child(5) { border-left-color: var(--orange); }
+.tip-card:nth-child(6) { border-left-color: var(--red); }
+
+.tip-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tip-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 3rem 1.5rem 2rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  border-top: 1px solid var(--border);
+}
+footer .footer-flag {
+  display: inline-flex;
+  flex-direction: column;
+  width: 24px;
+  height: 16px;
+  border-radius: 3px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin: 0 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+footer .footer-flag .top { background: #fff; flex: 1; }
+footer .footer-flag .bottom { background: var(--red); flex: 1; }
+footer p { margin-bottom: 0.4rem; }
+footer a {
+  color: var(--red);
+  text-decoration: none;
+}
+
+/* ── Quick Start ── */
+.quick-start { padding: var(--sp-8) 0; }
+.quick-start h2 { margin-bottom: var(--sp-5); }
+.quick-start__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--sp-4); }
+.quick-start__item {
+  display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-5);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text); transition: all 0.25s;
+}
+.quick-start__item:hover { border-color: var(--red); transform: translateY(-2px); box-shadow: var(--shadow-hover); color: var(--text); }
+.quick-start__item strong { font-size: 0.95rem; display: block; margin-bottom: 2px; }
+.quick-start__item p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+.qs-start-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+/* ── Scroll animations ── */
+.animate-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* delay children for stagger effect */
+.stagger > *:nth-child(1) { transition-delay: 0s; }
+.stagger > *:nth-child(2) { transition-delay: 0.08s; }
+.stagger > *:nth-child(3) { transition-delay: 0.16s; }
+.stagger > *:nth-child(4) { transition-delay: 0.24s; }
+.stagger > *:nth-child(5) { transition-delay: 0.32s; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem 3.5rem; }
+  .hero h1 { font-size: 2rem; }
+  .hero-subtitle { font-size: 1rem; }
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: -2rem;
+    padding: 0 1rem;
+  }
+  .stat-number { font-size: 1.5rem; }
+  .resources-grid { grid-template-columns: 1fr; }
+  .tips-grid { grid-template-columns: 1fr; }
+  section { padding: 3rem 1rem; }
+  .eagle-watermark { width: 200px; height: 200px; font-size: 180px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 1.65rem; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .stat-card { padding: 1rem 0.75rem; }
+}
+
+/* ── Print ── */
+@media print {
+  .hero { background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero" id="main-content" role="main">
+  <div class="eagle-watermark" aria-hidden="true">&#9765;</div>
+  <div class="hero-content animate-in">
+    <div class="hero-flag" aria-label="Polish flag"><div class="top"></div><div class="bottom"></div></div>
+    <h1>Polish Learning <span>Hub</span></h1>
+    <p class="hero-subtitle">Your personal A1&ndash;A2 Polish study companion &mdash; built from your Busuu vocabulary</p>
+    <a href="#resources" class="hero-cta">Start Learning &darr;</a>
+  </div>
+</section>
+
+<!-- Stats bar -->
+<div class="stats-bar stagger">
+  <div class="stat-card animate-in">
+    <span class="stat-number">390+</span>
+    <span class="stat-label">Vocabulary Words</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number">17</span>
+    <span class="stat-label">Themes</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number">18</span>
+    <span class="stat-label">Grammar Chapters</span>
+  </div>
+  <div class="stat-card animate-in">
+    <span class="stat-number">3</span>
+    <span class="stat-label">Quiz Types</span>
+  </div>
+</div>
+
+<!-- Quick Start -->
+<section class="quick-start">
+  <div class="container">
+    <h2 class="section-title animate-in">Quick Start</h2>
+    <div class="quick-start__grid stagger">
+      <a href="vocabulary.html" class="quick-start__item animate-in">
+        <span class="qs-start-icon">📖</span>
+        <div>
+          <strong>Review Weak Words</strong>
+          <p>Focus on words you haven't mastered yet</p>
+        </div>
+      </a>
+      <a href="quiz-pl-en.html" class="quick-start__item animate-in">
+        <span class="qs-start-icon">✏️</span>
+        <div>
+          <strong>Quick Quiz</strong>
+          <p>Test yourself with 10 random questions</p>
+        </div>
+      </a>
+      <a href="grammar.html" class="quick-start__item animate-in">
+        <span class="qs-start-icon">📚</span>
+        <div>
+          <strong>Study Grammar</strong>
+          <p>Review verb tenses and noun cases</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Resources -->
+<section id="resources">
+  <h2 class="section-title animate-in">Your Resources</h2>
+  <p class="section-subtitle animate-in">Everything you need to master A1&ndash;A2 Polish, all in one place</p>
+
+  <div class="resources-grid stagger">
+
+    <!-- Vocabulary -->
+    <div class="resource-card vocab animate-in">
+      <div class="resource-icon">📖</div>
+      <h3>Themed Vocabulary Reference</h3>
+      <div class="resource-tags">
+        <span class="tag">390+ words</span>
+        <span class="tag">17 themes</span>
+        <span class="tag">A1&ndash;A2</span>
+      </div>
+      <p>Browse all your Busuu vocabulary organized by theme &mdash; from greetings and food to travel and emotions. Each word with its Polish spelling, English translation, and context.</p>
+      <a href="vocabulary.html" class="resource-btn primary">Open Vocabulary &rarr;</a>
+    </div>
+
+    <!-- Grammar -->
+    <div class="resource-card grammar animate-in">
+      <div class="resource-icon">📐</div>
+      <h3>Polish Grammar Book</h3>
+      <div class="resource-tags">
+        <span class="tag">18 chapters</span>
+        <span class="tag">A1 &rarr; A2</span>
+        <span class="tag">examples</span>
+      </div>
+      <p>A comprehensive grammar reference covering everything from noun genders and cases to verb conjugation, prepositions, and sentence structure. Full of clear examples.</p>
+      <a href="grammar.html" class="resource-btn navy">Open Grammar &rarr;</a>
+    </div>
+
+    <!-- Quiz PL-EN -->
+    <div class="resource-card quiz-pl animate-in">
+      <div class="resource-icon">🇵🇱 &rarr; 🇬🇧</div>
+      <h3>Polish &rarr; English Quiz</h3>
+      <div class="resource-tags">
+        <span class="tag">recognition</span>
+        <span class="tag">reading</span>
+        <span class="tag">stats</span>
+      </div>
+      <p>See a Polish word, type its English meaning. Perfect for building reading comprehension and recognizing vocabulary in context. Tracks your progress over time.</p>
+      <a href="quiz-pl-en.html" class="resource-btn green">Start Quiz &rarr;</a>
+    </div>
+
+    <!-- Quiz EN-PL -->
+    <div class="resource-card quiz-en animate-in">
+      <div class="resource-icon">🇬🇧 &rarr; 🇵🇱</div>
+      <h3>English &rarr; Polish Quiz</h3>
+      <div class="resource-tags">
+        <span class="tag">production</span>
+        <span class="tag">spelling</span>
+        <span class="tag">diacritics</span>
+      </div>
+      <p>See an English word, type its Polish translation &mdash; including correct diacritics (ą, ę, ó, ś, ź, ż, ć, ń, ł). The toughest test of your active vocabulary.</p>
+      <a href="quiz-en-pl.html" class="resource-btn orange">Start Quiz &rarr;</a>
+    </div>
+
+    <!-- Quiz Grammar -->
+    <div class="resource-card quiz-gr animate-in">
+      <div class="resource-icon">🧩</div>
+      <h3>Grammar Quiz</h3>
+      <div class="resource-tags">
+        <span class="tag">cases</span>
+        <span class="tag">conjugation</span>
+        <span class="tag">rules</span>
+      </div>
+      <p>Test your understanding of Polish grammar rules &mdash; noun cases, verb forms, adjective agreement, and more. Great for reinforcing what you learn in the grammar book.</p>
+      <a href="quiz-grammar.html" class="resource-btn purple">Start Quiz &rarr;</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Quick Stats from localStorage -->
+<section>
+  <h2 class="section-title animate-in">Your Progress</h2>
+  <p class="section-subtitle animate-in">Stats from your quiz sessions (stored locally in your browser)</p>
+  <div class="quick-stats-section animate-in">
+    <div id="quick-stats-container">
+      <div class="no-stats">Loading your stats...</div>
+    </div>
+  </div>
+</section>
+
+<!-- Study Tips -->
+<section>
+  <h2 class="section-title animate-in">Study Tips</h2>
+  <p class="section-subtitle animate-in">Make the most of your Polish study sessions</p>
+
+  <div class="tips-grid stagger">
+    <div class="tip-card animate-in">
+      <h4>🎯 Focus on weak words</h4>
+      <p>In the quizzes, filter by "weak" or "medium" confidence words. Spending time on what you don't know yet is far more effective than reviewing what you already ace.</p>
+    </div>
+    <div class="tip-card animate-in">
+      <h4>📐 Grammar first, then quiz</h4>
+      <p>Before taking the grammar quiz, review the relevant chapter in the grammar book. Understanding the rule makes it stick much better than memorizing answers.</p>
+    </div>
+    <div class="tip-card animate-in">
+      <h4>📖 Use vocabulary as a lookup</h4>
+      <p>Keep the themed vocabulary reference open while studying. When you encounter a word you don't remember, look it up by theme to see it in context alongside related words.</p>
+    </div>
+    <div class="tip-card animate-in">
+      <h4>🔄 Alternate quiz directions</h4>
+      <p>Practice both Polish&rarr;English (recognition) and English&rarr;Polish (production). Recognition is easier &mdash; production with correct diacritics is where real fluency lives.</p>
+    </div>
+    <div class="tip-card animate-in">
+      <h4>⏱️ Short daily sessions</h4>
+      <p>15&ndash;20 minutes daily beats a 2-hour weekend marathon. Spaced repetition is the key to long-term retention. Consistency trumps intensity.</p>
+    </div>
+    <div class="tip-card animate-in">
+      <h4>✍️ Write it out</h4>
+      <p>Polish diacritics (ą, ę, ó, ś, ź, ż, ć, ń, ł) are essential. Practice typing them using the quiz keyboard. Getting them right builds muscle memory for real writing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Built with care for learning Polish <span class="footer-flag" aria-label="Polish flag"><span class="top"></span><span class="bottom"></span></span></p>
+  <p>A1&ndash;A2 vocabulary sourced from Busuu &middot; <a href="vocabulary.html">390+ words</a> &middot; <a href="grammar.html">18 grammar chapters</a> &middot; <a href="quiz-pl-en.html">3 quiz modes</a></p>
+  <p style="margin-top: 0.75rem; font-size: 0.8rem;">Powodzenia! (Good luck!)</p>
+</footer>
+
+<script>
+// ── Scroll animations with IntersectionObserver ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+// ── Quick Stats from localStorage ──
+function loadQuickStats() {
+  const container = document.getElementById('quick-stats-container');
+  const stats = [];
+
+  try {
+    // PL→EN quiz stats
+    const plStats = JSON.parse(localStorage.getItem('plquiz_stats') || '{}');
+    if (plStats.totalAnswered) {
+      const pct = Math.round((plStats.totalCorrect / plStats.totalAnswered) * 100);
+      stats.push({
+        icon: '🇵🇱',
+        title: 'Polish → English Quiz',
+        detail: `${plStats.totalCorrect}/${plStats.totalAnswered} correct (${pct}%)`,
+        value: pct + '%'
+      });
+    }
+
+    // EN→PL quiz stats
+    const enStats = JSON.parse(localStorage.getItem('polishQuizStats') || '{}');
+    if (enStats.totalAnswered) {
+      const pct = Math.round((enStats.totalCorrect / enStats.totalAnswered) * 100);
+      stats.push({
+        icon: '🇬🇧',
+        title: 'English → Polish Quiz',
+        detail: `${enStats.totalCorrect}/${enStats.totalAnswered} correct` + (enStats.bestStreak ? ` · Best streak: ${enStats.bestStreak}` : ''),
+        value: pct + '%'
+      });
+      if (enStats.diacriticMisses) {
+        stats.push({
+          icon: '✍️',
+          title: 'Diacritic Misses',
+          detail: 'Times diacritics were wrong (ą, ę, ó, etc.)',
+          value: enStats.diacriticMisses
+        });
+      }
+    }
+
+    // Grammar quiz stats
+    const grStats = JSON.parse(localStorage.getItem('polishGrammarStats') || '{}');
+    if (grStats.totalAnswered) {
+      const pct = Math.round((grStats.totalCorrect / grStats.totalAnswered) * 100);
+      stats.push({
+        icon: '🧩',
+        title: 'Grammar Quiz',
+        detail: `${grStats.totalCorrect}/${grStats.totalAnswered} correct (${pct}%)`,
+        value: pct + '%'
+      });
+    }
+  } catch {}
+
+  if (stats.length === 0) {
+    container.innerHTML = '<div class="no-stats">No quiz data yet. Take a quiz to see your progress here!</div>';
+    return;
+  }
+
+  let html = '<div class="quick-stats-grid">';
+  stats.forEach(s => {
+    html += `
+      <div class="qs-card">
+        <div class="qs-icon">${s.icon}</div>
+        <div class="qs-info">
+          <h4>${s.title}</h4>
+          <p>${s.detail}</p>
+        </div>
+        <div class="qs-value">${s.value}</div>
+      </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+loadQuickStats();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polish Grammar Quiz - A1/A2</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<script src="js/shared.js" defer></script>
+<style>
+/* quiz-grammar.html — Quiz-specific variables and styles */
+
+/* Variables needed by quiz styles that extend base tokens */
+:root {
+  --hover-bg: #f0f0f0;
+  --kbd-bg: #eee;
+  --streak-color: #FF9800;
+  --progress-bg: #e0e0e0;
+}
+
+[data-theme="dark"] {
+  --hover-bg: #223354;
+  --kbd-bg: #223354;
+  --progress-bg: #223354;
+}
+
+.quiz-container { max-width: 720px; margin: 0 auto; padding: var(--sp-4); }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) 0;
+  margin-bottom: var(--sp-2);
+}
+
+.header h1 {
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, var(--red), var(--navy));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.flag-bar {
+  height: 4px;
+  background: linear-gradient(to right, #fff 0%, #fff 50%, var(--red) 50%, var(--red) 100%);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+
+/* Setup screen */
+.category-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0;
+}
+
+.category-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.category-btn:hover { border-color: var(--red); }
+.category-btn.selected { border-color: var(--red); background: rgba(220,20,60,0.08); }
+.category-btn .cat-icon { font-size: 1.3rem; }
+
+.count-selector {
+  display: flex;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  padding: 10px 24px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.count-btn:hover { border-color: var(--red); }
+.count-btn.selected { border-color: var(--red); background: var(--red); color: white; }
+
+.start-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--red), var(--navy));
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: opacity 0.2s;
+}
+.start-btn:hover { opacity: 0.9; }
+.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Progress bar */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.quiz-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), var(--navy));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-text { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,152,0,0.12);
+  color: var(--streak-color);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Question */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+
+.question-type {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--red);
+  font-weight: 700;
+}
+
+.question-category {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--hover-bg);
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.question-text {
+  font-size: 1.2rem;
+  margin-bottom: var(--sp-5);
+  line-height: 1.5;
+}
+
+.question-text .blank {
+  display: inline-block;
+  min-width: 100px;
+  border-bottom: 2px dashed var(--red);
+  text-align: center;
+  margin: 0 4px;
+}
+
+.question-text .hint {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+/* Multiple choice */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.choice-btn {
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  text-align: left;
+  transition: all 0.2s;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--red); background: var(--hover-bg); }
+.choice-btn.correct { border-color: var(--success); background: rgba(46,204,113,0.1); }
+.choice-btn.wrong { border-color: var(--error); background: rgba(231,76,60,0.1); }
+.choice-btn:disabled { cursor: default; }
+
+/* Text input */
+.answer-input-wrap {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.answer-input {
+  flex: 1;
+  padding: var(--sp-3) var(--sp-4);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  background: var(--input-bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.answer-input:focus { border-color: var(--red); }
+.answer-input.correct { border-color: var(--success); }
+.answer-input.wrong { border-color: var(--error); }
+
+.submit-btn {
+  padding: var(--sp-3) var(--sp-6);
+  background: var(--red);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.submit-btn:hover { opacity: 0.85; }
+
+/* Polish keyboard */
+.polish-kbd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.kbd-key {
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--kbd-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text);
+  transition: all 0.15s;
+  user-select: none;
+  min-width: 36px;
+  text-align: center;
+}
+.kbd-key:hover { background: var(--red); color: white; }
+.kbd-key:active { transform: scale(0.95); }
+
+/* Feedback */
+.feedback {
+  margin-top: var(--sp-4);
+  padding: 14px var(--sp-4);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.feedback.correct { background: rgba(46,204,113,0.1); border: 1px solid var(--success); }
+.feedback.wrong { background: rgba(231,76,60,0.08); border: 1px solid var(--error); }
+.feedback .fb-title { font-weight: 700; margin-bottom: 4px; }
+.feedback.correct .fb-title { color: var(--success); }
+.feedback.wrong .fb-title { color: var(--error); }
+.feedback .grammar-tip { margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); border-top: 1px solid var(--border); padding-top: 8px; }
+
+.next-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--sp-4);
+  transition: opacity 0.2s;
+}
+.next-btn:hover { opacity: 0.85; }
+
+/* Word ordering */
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  min-height: 48px;
+  padding: var(--sp-3);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.word-chip {
+  padding: var(--sp-2) 14px;
+  background: var(--kbd-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text);
+  transition: all 0.15s;
+  user-select: none;
+}
+.word-chip:hover { background: var(--red); color: white; }
+.word-chip.placed { opacity: 0.3; pointer-events: none; }
+
+.answer-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  min-height: 48px;
+  padding: var(--sp-3);
+  background: var(--hover-bg);
+  border-radius: var(--radius);
+  margin-bottom: var(--sp-3);
+}
+
+.answer-slot-chip {
+  padding: var(--sp-2) 14px;
+  background: var(--red);
+  color: white;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s;
+}
+.answer-slot-chip:hover { opacity: 0.7; }
+
+/* Results */
+.results-score {
+  text-align: center;
+  padding: var(--sp-8) 0;
+}
+
+.results-score .score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--sp-4);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: white;
+}
+
+.results-score .score-label { font-size: 1rem; color: var(--text-secondary); }
+
+.weak-areas {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4);
+  background: var(--hover-bg);
+  border-radius: var(--radius);
+}
+
+.weak-areas h3 { margin-bottom: var(--sp-3); font-size: 1rem; }
+
+.weak-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.weak-item:last-child { border-bottom: none; }
+
+.wrong-review { margin-top: var(--sp-4); }
+.wrong-review h3 { margin-bottom: var(--sp-3); }
+
+.wrong-item {
+  padding: var(--sp-3);
+  background: var(--hover-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-2);
+  font-size: 0.9rem;
+}
+
+.wrong-item .wi-q { font-weight: 600; margin-bottom: 4px; }
+.wrong-item .wi-your { color: var(--error); }
+.wrong-item .wi-correct { color: var(--success); }
+.wrong-item .wi-tip { color: var(--text-secondary); font-size: 0.8rem; margin-top: 4px; }
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  padding: var(--sp-3);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.stat-box .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--red); }
+.stat-box .stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+.hidden { display: none !important; }
+
+/* Responsive -- tablet */
+@media (max-width: 768px) {
+  .category-grid { grid-template-columns: 1fr; }
+  .quiz-container { padding: var(--sp-3); }
+  .card { padding: var(--sp-4); }
+  .answer-input-wrap { flex-direction: column; }
+  .question-text { font-size: 1.05rem; }
+}
+
+/* Responsive -- small mobile */
+@media (max-width: 480px) {
+  .quiz-container { padding: var(--sp-2); }
+  .card { padding: var(--sp-3); }
+  .header h1 { font-size: 1.1rem; }
+  .question-text { font-size: 0.95rem; }
+  .category-btn { padding: var(--sp-3); font-size: 0.85rem; min-height: 48px; }
+  .option-btn { min-height: 48px; padding: var(--sp-3); font-size: 0.9rem; }
+  .stat-box { padding: var(--sp-2); }
+  .stat-box .stat-num { font-size: 1.2rem; }
+  .stat-box .stat-label { font-size: 0.65rem; }
+}
+
+/* Results cross-links */
+.results-links { margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--border); text-align: left; }
+.results-links h4 { margin-bottom: var(--sp-3); font-size: 0.95rem; color: var(--text-muted); }
+.results-link {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4); margin: var(--sp-1) var(--sp-2) var(--sp-1) 0;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+  transition: all 0.2s;
+}
+.results-link:hover { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="quiz-container" id="main-content">
+  <div class="header">
+    <h1>Polish Grammar Quiz</h1>
+  </div>
+  <div class="flag-bar"></div>
+
+  <!-- Stats Bar (always visible) -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Quizzes</div></div>
+    <div class="stat-box"><div class="stat-num" id="statAvg">0%</div><div class="stat-label">Avg Score</div></div>
+    <div class="stat-box"><div class="stat-num" id="statBest">0</div><div class="stat-label">Best Streak</div></div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div id="setupScreen">
+    <div class="card">
+      <h2 style="margin-bottom:4px;">Choose Categories</h2>
+      <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:8px;">Select at least one grammar topic to practice</p>
+      <div class="category-grid" id="categoryGrid"></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-bottom:12px;">Number of Questions</h2>
+      <div class="count-selector" id="countSelector"></div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startQuiz()" disabled>Start Quiz</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="hidden">
+    <div class="progress-container">
+      <div class="quiz-progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">0/0</span>
+      <span class="streak-badge" id="streakBadge">&#9889; 0</span>
+    </div>
+    <div class="card" id="questionCard"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="hidden"></div>
+</div>
+
+<script>
+// quiz-grammar.html — Interactive Polish grammar quiz based on Busuu A1-A2 vocabulary
+
+// ===== BREADCRUMBS =====
+if (window.polishHub) {
+  const bc = window.polishHub.createBreadcrumbs([
+    {label: 'Home', href: 'index.html'},
+    {label: 'Quizzes', href: 'index.html'},
+    {label: 'Grammar Quiz'}
+  ]);
+  const main = document.getElementById('main-content');
+  if (main) main.prepend(bc);
+}
+
+// ============== DATA ==============
+const VOCAB = [{"polish":"biegać","english":"to run","type":"verb"},{"polish":"czuć","english":"to feel","type":"verb"},{"polish":"czytać","english":"to read","type":"verb"},{"polish":"grać","english":"to play","type":"verb"},{"polish":"leczyć","english":"treat","type":"verb"},{"polish":"leżeć","english":"lie down","type":"verb"},{"polish":"lądować","english":"land","type":"verb"},{"polish":"oblać","english":"fail","type":"verb"},{"polish":"oddychać","english":"breathe","type":"verb"},{"polish":"pisać","english":"to write","type":"verb"},{"polish":"powtarzać","english":"revise","type":"verb"},{"polish":"pytać","english":"to ask","type":"verb"},{"polish":"płakać","english":"cry","type":"verb"},{"polish":"pływać","english":"to swim","type":"verb"},{"polish":"skakać","english":"jump","type":"verb"},{"polish":"słuchać","english":"listen","type":"verb"},{"polish":"trzymać","english":"hold","type":"verb"},{"polish":"uczyć się","english":"to learn","type":"verb"},{"polish":"uśmiechać się","english":"smile","type":"verb"},{"polish":"wskazywać","english":"point","type":"verb"},{"polish":"zamówić","english":"to order","type":"verb"},{"polish":"zdać","english":"to pass","type":"verb"},{"polish":"ziewać","english":"yawn","type":"verb"},{"polish":"śmiać się","english":"laugh","type":"verb"},{"polish":"żuć","english":"chew","type":"verb"},{"polish":"chrapać","english":"snore","type":"verb"},{"polish":"opalać się","english":"sunbathe","type":"verb"},{"polish":"odkurzać","english":"hoover","type":"verb"},{"polish":"prasować","english":"iron","type":"verb"},{"polish":"zamiatać","english":"sweep","type":"verb"},{"polish":"startować","english":"take off","type":"verb"}];
+
+const SENTENCES = [
+  {pl:"Czy będziecie grali w golfa w ten weekend?",en:"Will you play golf this weekend?",tense:"future"},
+  {pl:"Czy ona robiła makijaż i suszyła włosy?",en:"Was she putting on her make-up and drying her hair?",tense:"past continuous"},
+  {pl:"Czy oni pójdą do pracy w sobotę?",en:"Will they go to work on Saturday?",tense:"future"},
+  {pl:"Czy oni wszyscy mówili jednocześnie?",en:"Were they all speaking at the same time?",tense:"past"},
+  {pl:"Czy ty będziesz miał pizzę na lunch?",en:"Will you have a pizza for lunch?",tense:"future"},
+  {pl:"Ja nie mieszkałem we Francji przez dwa lata.",en:"I didn't live in France for two years.",tense:"past"},
+  {pl:"Ja nie pójdę na spacer.",en:"I won't go for a walk.",tense:"future"},
+  {pl:"Ja pójdę na spacer.",en:"I will go for a walk.",tense:"future"},
+  {pl:"Mieszkałem we Francji przez dwa lata.",en:"I lived in France for two years.",tense:"past"},
+  {pl:"My nie piliśmy kawy w barze.",en:"We weren't having coffee in the bar.",tense:"past"},
+  {pl:"My piłyśmy kawę w barze.",en:"We were having a coffee in the bar.",tense:"past"},
+  {pl:"On jednocześnie czytał książkę i oglądał telewizję.",en:"He was reading the book and watching the TV at the same time.",tense:"past continuous"},
+  {pl:"On kupi gazetę po południu.",en:"He will buy a newspaper this afternoon.",tense:"future"},
+  {pl:"On szedł do pracy pieszo w zeszły weekend.",en:"He walked to work last weekend.",tense:"past"},
+  {pl:"Ona jest zmęczoną nauczycielką.",en:"She's a tired teacher.",tense:"present"},
+  {pl:"Ona tańczyła w sobotę całą noc.",en:"She danced all night on Saturday.",tense:"past"},
+  {pl:"One nie pójdą do pracy w sobotę.",en:"They won't go to work on Saturday.",tense:"future"},
+  {pl:"One wszystkie mówiły jednocześnie.",en:"They were all speaking at the same time.",tense:"past continuous"},
+  {pl:"Oni powiedzą Annie kiedy ona przyjedzie.",en:"They will tell Anna when she arrives.",tense:"future"},
+  {pl:"Oni zadzwonią do rodziców po szkole.",en:"They will call their parents after school.",tense:"future"},
+  {pl:"Oni zaparkowali na ulicy.",en:"They parked in the street.",tense:"past"},
+  {pl:"Otworzyliśmy drzwi o 8:00.",en:"We opened the doors at 8 o'clock.",tense:"past"},
+  {pl:"Porozmawiamy o tym później.",en:"We will talk about this later.",tense:"future"},
+  {pl:"Pójdziecie dzisiaj wieczorem do kina.",en:"You will go to the cinema tonight.",tense:"future"},
+  {pl:"Wczoraj nie oglądałem zdjęć.",en:"I wasn't looking at the photos yesterday.",tense:"past"},
+  {pl:"Wczoraj oglądałem zdjęcia.",en:"I was looking at the photos yesterday.",tense:"past continuous"},
+  {pl:"Wy rozmawialiście z Marią.",en:"You were talking to Maria.",tense:"past"},
+  {pl:"Wy wczoraj słuchaliście muzyki.",en:"You listened to music yesterday.",tense:"past"}
+];
+
+// Verb conjugation database
+const CONJUGATIONS = {
+  "czytać": {
+    present: {ja:"czytam",ty:"czytasz",on:"czyta",my:"czytamy",wy:"czytacie",oni:"czytają"},
+    past_m: {ja:"czytałem",ty:"czytałeś",on:"czytał",my:"czytaliśmy",wy:"czytaliście",oni:"czytali"},
+    past_f: {ja:"czytałam",ty:"czytałaś",ona:"czytała",my:"czytałyśmy",wy:"czytałyście",one:"czytały"}
+  },
+  "pisać": {
+    present: {ja:"piszę",ty:"piszesz",on:"pisze",my:"piszemy",wy:"piszecie",oni:"piszą"},
+    past_m: {ja:"pisałem",ty:"pisałeś",on:"pisał",my:"pisaliśmy",wy:"pisaliście",oni:"pisali"},
+    past_f: {ja:"pisałam",ty:"pisałaś",ona:"pisała",my:"pisałyśmy",wy:"pisałyście",one:"pisały"}
+  },
+  "pływać": {
+    present: {ja:"pływam",ty:"pływasz",on:"pływa",my:"pływamy",wy:"pływacie",oni:"pływają"},
+    past_m: {ja:"pływałem",ty:"pływałeś",on:"pływał",my:"pływaliśmy",wy:"pływaliście",oni:"pływali"},
+    past_f: {ja:"pływałam",ty:"pływałaś",ona:"pływała",my:"pływałyśmy",wy:"pływałyście",one:"pływały"}
+  },
+  "biegać": {
+    present: {ja:"biegam",ty:"biegasz",on:"biega",my:"biegamy",wy:"biegacie",oni:"biegają"},
+    past_m: {ja:"biegałem",ty:"biegałeś",on:"biegał",my:"biegaliśmy",wy:"biegaliście",oni:"biegali"},
+    past_f: {ja:"biegałam",ty:"biegałaś",ona:"biegała",my:"biegałyśmy",wy:"biegałyście",one:"biegały"}
+  },
+  "słuchać": {
+    present: {ja:"słucham",ty:"słuchasz",on:"słucha",my:"słuchamy",wy:"słuchacie",oni:"słuchają"},
+    past_m: {ja:"słuchałem",ty:"słuchałeś",on:"słuchał",my:"słuchaliśmy",wy:"słuchaliście",oni:"słuchali"},
+    past_f: {ja:"słuchałam",ty:"słuchałaś",ona:"słuchała",my:"słuchałyśmy",wy:"słuchałyście",one:"słuchały"}
+  },
+  "pytać": {
+    present: {ja:"pytam",ty:"pytasz",on:"pyta",my:"pytamy",wy:"pytacie",oni:"pytają"},
+    past_m: {ja:"pytałem",ty:"pytałeś",on:"pytał",my:"pytaliśmy",wy:"pytaliście",oni:"pytali"},
+    past_f: {ja:"pytałam",ty:"pytałaś",ona:"pytała",my:"pytałyśmy",wy:"pytałyście",one:"pytały"}
+  },
+  "skakać": {
+    present: {ja:"skaczę",ty:"skaczesz",on:"skacze",my:"skaczemy",wy:"skaczecie",oni:"skaczą"},
+    past_m: {ja:"skakałem",ty:"skakałeś",on:"skakał",my:"skakaliśmy",wy:"skakaliście",oni:"skakali"},
+    past_f: {ja:"skakałam",ty:"skakałaś",ona:"skakała",my:"skakałyśmy",wy:"skakałyście",one:"skakały"}
+  },
+  "płakać": {
+    present: {ja:"płaczę",ty:"płaczesz",on:"płacze",my:"płaczemy",wy:"płaczecie",oni:"płaczą"},
+    past_m: {ja:"płakałem",ty:"płakałeś",on:"płakał",my:"płakaliśmy",wy:"płakaliście",oni:"płakali"},
+    past_f: {ja:"płakałam",ty:"płakałaś",ona:"płakała",my:"płakałyśmy",wy:"płakałyście",one:"płakały"}
+  },
+  "trzymać": {
+    present: {ja:"trzymam",ty:"trzymasz",on:"trzyma",my:"trzymamy",wy:"trzymacie",oni:"trzymają"},
+    past_m: {ja:"trzymałem",ty:"trzymałeś",on:"trzymał",my:"trzymaliśmy",wy:"trzymaliście",oni:"trzymali"},
+    past_f: {ja:"trzymałam",ty:"trzymałaś",ona:"trzymała",my:"trzymałyśmy",wy:"trzymałyście",one:"trzymały"}
+  },
+  "leżeć": {
+    present: {ja:"leżę",ty:"leżysz",on:"leży",my:"leżymy",wy:"leżycie",oni:"leżą"},
+    past_m: {ja:"leżałem",ty:"leżałeś",on:"leżał",my:"leżeliśmy",wy:"leżeliście",oni:"leżeli"},
+    past_f: {ja:"leżałam",ty:"leżałaś",ona:"leżała",my:"leżałyśmy",wy:"leżałyście",one:"leżały"}
+  },
+  "oddychać": {
+    present: {ja:"oddycham",ty:"oddychasz",on:"oddycha",my:"oddychamy",wy:"oddychacie",oni:"oddychają"},
+    past_m: {ja:"oddychałem",ty:"oddychałeś",on:"oddychał",my:"oddychaliśmy",wy:"oddychaliście",oni:"oddychali"},
+    past_f: {ja:"oddychałam",ty:"oddychałaś",ona:"oddychała",my:"oddychałyśmy",wy:"oddychałyście",one:"oddychały"}
+  },
+  "ziewać": {
+    present: {ja:"ziewam",ty:"ziewasz",on:"ziewa",my:"ziewamy",wy:"ziewacie",oni:"ziewają"},
+    past_m: {ja:"ziewałem",ty:"ziewałeś",on:"ziewał",my:"ziewaliśmy",wy:"ziewaliście",oni:"ziewali"},
+    past_f: {ja:"ziewałam",ty:"ziewałaś",ona:"ziewała",my:"ziewałyśmy",wy:"ziewałyście",one:"ziewały"}
+  },
+  "chrapać": {
+    present: {ja:"chrapię",ty:"chrapiesz",on:"chrapie",my:"chrapiemy",wy:"chrapiecie",oni:"chrapią"},
+    past_m: {ja:"chrapałem",ty:"chrapałeś",on:"chrapał",my:"chrapaliśmy",wy:"chrapaliście",oni:"chrapali"},
+    past_f: {ja:"chrapałam",ty:"chrapałaś",ona:"chrapała",my:"chrapałyśmy",wy:"chrapałyście",one:"chrapały"}
+  },
+  "odkurzać": {
+    present: {ja:"odkurzam",ty:"odkurzasz",on:"odkurza",my:"odkurzamy",wy:"odkurzacie",oni:"odkurzają"},
+    past_m: {ja:"odkurzałem",ty:"odkurzałeś",on:"odkurzał",my:"odkurzaliśmy",wy:"odkurzaliście",oni:"odkurzali"},
+    past_f: {ja:"odkurzałam",ty:"odkurzałaś",ona:"odkurzała",my:"odkurzałyśmy",wy:"odkurzałyście",one:"odkurzały"}
+  },
+  "zamiatać": {
+    present: {ja:"zamiatam",ty:"zamiatasz",on:"zamiata",my:"zamiatamy",wy:"zamiatacie",oni:"zamiatają"},
+    past_m: {ja:"zamiatałem",ty:"zamiatałeś",on:"zamiatał",my:"zamiataliśmy",wy:"zamiataliście",oni:"zamiatali"},
+    past_f: {ja:"zamiatałam",ty:"zamiatałaś",ona:"zamiatała",my:"zamiatałyśmy",wy:"zamiatałyście",one:"zamiatały"}
+  },
+  "żuć": {
+    present: {ja:"żuję",ty:"żujesz",on:"żuje",my:"żujemy",wy:"żujecie",oni:"żują"},
+    past_m: {ja:"żułem",ty:"żułeś",on:"żuł",my:"żuliśmy",wy:"żuliście",oni:"żuli"},
+    past_f: {ja:"żułam",ty:"żułaś",ona:"żuła",my:"żułyśmy",wy:"żułyście",one:"żuły"}
+  }
+};
+
+// Noun gender database
+const NOUN_GENDERS = [
+  {noun:"biurko",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"lampa",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"brat",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"miasto",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"siostra",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"syn",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"córka",gender:"feminine",tip:"Nouns ending in -a (and referring to females) are feminine."},
+  {noun:"morze",gender:"neuter",tip:"Nouns ending in -e are typically neuter."},
+  {noun:"muzeum",gender:"neuter",tip:"Nouns ending in -um (borrowed from Latin) are neuter."},
+  {noun:"kawa",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"hotel",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"szkoła",gender:"feminine",tip:"Nouns ending in -a are typically feminine (note ł before a)."},
+  {noun:"kot",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"pies",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"lustro",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"łóżko",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"kanapa",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"dywan",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"poduszka",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"prysznic",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"wanna",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"most",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"ulica",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"teatr",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"kino",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"restauracja",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"lotnisko",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"plaża",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"piasek",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"woda",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"jedzenie",gender:"neuter",tip:"Nouns ending in -e (especially -nie, -cie) are typically neuter."},
+  {noun:"ciasto",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"sok",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"deser",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"nos",gender:"masculine",tip:"Body parts ending in a consonant are typically masculine."},
+  {noun:"głowa",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"noga",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"ręka",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"dłoń",gender:"feminine",tip:"Nouns ending in -ń can be feminine (soft consonant ending)."},
+  {noun:"portfel",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"zegarek",gender:"masculine",tip:"Nouns ending in -ek are typically masculine."},
+  {noun:"parasol",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"białko",gender:"neuter",tip:"Nouns ending in -o are typically neuter."},
+  {noun:"egzamin",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."},
+  {noun:"lato",gender:"neuter",tip:"Nouns ending in -o are typically neuter (seasons: lato is neuter)."},
+  {noun:"jesień",gender:"feminine",tip:"Nouns ending in -ń (soft consonant) are often feminine."},
+  {noun:"wiosna",gender:"feminine",tip:"Nouns ending in -a are typically feminine."},
+  {noun:"śnieg",gender:"masculine",tip:"Nouns ending in a consonant are typically masculine."}
+];
+
+// Adjective agreement pairs
+const ADJ_PAIRS = [
+  {masc:"chory",fem:"chora",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"cierpliwy",fem:"cierpliwa",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"miękki",fem:"miękka",tip:"Adjectives ending in -ki change to -ka in feminine."},
+  {masc:"dojrzały",fem:"dojrzała",tip:"Standard pattern: -y -> -a for feminine. Note ł stays."},
+  {masc:"mdły",fem:"mdła",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"surowy",fem:"surowa",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"twardy",fem:"twarda",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"pracowity",fem:"pracowita",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"zmęczony",fem:"zmęczona",tip:"Standard pattern: -y -> -a for feminine. Participle adjectives follow the same rule."},
+  {masc:"słodki",fem:"słodka",tip:"Adjectives ending in -ki change to -ka in feminine."},
+  {masc:"żonaty",fem:"zamężna",tip:"This pair is irregular: żonaty (married man) / zamężna (married woman). Different roots!"},
+  {masc:"nieżonaty",fem:"niezamężna",tip:"Irregular: nieżonaty (single man) / niezamężna (single woman). Different roots!"},
+  {masc:"kwaśny",fem:"kwaśna",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"słony",fem:"słona",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"wysportowany",fem:"wysportowana",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"zajęty",fem:"zajęta",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"zaręczony",fem:"zaręczona",tip:"Standard pattern: -y -> -a for feminine. Participle adjectives follow the same rule."},
+  {masc:"miły",fem:"miła",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"duży",fem:"duża",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"młody",fem:"młoda",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"stary",fem:"stara",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"drogi",fem:"droga",tip:"Adjectives ending in -gi change to -ga in feminine."},
+  {masc:"nudny",fem:"nudna",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"ciekawy",fem:"ciekawa",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"zabawny",fem:"zabawna",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"szczery",fem:"szczera",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"odważny",fem:"odważna",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"nieśmiały",fem:"nieśmiała",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"agresywny",fem:"agresywna",tip:"Standard pattern: -y -> -a for feminine."},
+  {masc:"piękny",fem:"piękna",tip:"Standard pattern: -y -> -a for feminine."}
+];
+
+// Cases database
+const CASE_QUESTIONS = [
+  {prompt:"Jestem ___ (lekarz)",answer:"lekarzem",case_name:"Instrumental",tip:"After 'jestem' (I am) use the Instrumental case. Masculine nouns: add -em (lekarz -> lekarzem)."},
+  {prompt:"Mam ___ (brat)",answer:"brata",case_name:"Accusative",tip:"After 'mam' (I have) use the Accusative case. Animate masculine nouns: same as Genitive (brat -> brata)."},
+  {prompt:"Mieszkam w ___ (miasto)",answer:"mieście",case_name:"Locative",tip:"After 'w' (in) use the Locative case. Neuter -o nouns: -o -> -e with possible stem changes (miasto -> mieście)."},
+  {prompt:"Idę do ___ (szkoła)",answer:"szkoły",case_name:"Genitive",tip:"After 'do' (to) use the Genitive case. Feminine -a nouns: -a -> -y or -i (szkoła -> szkoły)."},
+  {prompt:"Jestem ___ (nauczyciel)",answer:"nauczycielem",case_name:"Instrumental",tip:"After 'jestem' use the Instrumental. Masculine nouns ending in a consonant: add -em."},
+  {prompt:"Lubię ___ (kawa)",answer:"kawę",case_name:"Accusative",tip:"After 'lubię' (I like) use the Accusative. Feminine -a nouns: -a -> -ę (kawa -> kawę)."},
+  {prompt:"Nie mam ___ (kot)",answer:"kota",case_name:"Genitive",tip:"Negation with 'mam' requires the Genitive. Animate masculine: add -a (kot -> kota)."},
+  {prompt:"Jadę ___ (samochód)",answer:"samochodem",case_name:"Instrumental",tip:"Means of transport uses the Instrumental case. Masculine: add -em (samochód -> samochodem)."},
+  {prompt:"Rozmawiam z ___ (siostra)",answer:"siostrą",case_name:"Instrumental",tip:"After 'z' (with) use the Instrumental. Feminine -a nouns: -a -> -ą (siostra -> siostrą)."},
+  {prompt:"Idę na ___ (plaża)",answer:"plażę",case_name:"Accusative",tip:"'Na' + Accusative for direction (going to). Feminine -a nouns: -a -> -ę (plaża -> plażę)."},
+  {prompt:"Kupuję ___ (chleb)",answer:"chleb",case_name:"Accusative",tip:"Inanimate masculine nouns stay the same in the Accusative (chleb -> chleb)."},
+  {prompt:"Idę do ___ (restauracja)",answer:"restauracji",case_name:"Genitive",tip:"After 'do' use the Genitive. Feminine -a nouns ending in -cja: -a -> -i (restauracja -> restauracji)."},
+  {prompt:"Piszę do ___ (brat)",answer:"brata",case_name:"Genitive",tip:"After 'do' (to) use the Genitive. Animate masculine: add -a."},
+  {prompt:"Jestem w ___ (hotel)",answer:"hotelu",case_name:"Locative",tip:"After 'w' (in) use the Locative. Masculine nouns: often add -u (hotel -> hotelu)."},
+  {prompt:"Wracam z ___ (praca)",answer:"pracy",case_name:"Genitive",tip:"After 'z' (from) use the Genitive. Feminine -a nouns: -a -> -y (praca -> pracy)."},
+  {prompt:"Czekam na ___ (brat)",answer:"brata",case_name:"Accusative",tip:"'Czekać na' + Accusative. Animate masculine: same as Genitive (brat -> brata)."},
+  {prompt:"Książka leży na ___ (biurko)",answer:"biurku",case_name:"Locative",tip:"'Na' + Locative for location. Neuter -o nouns: -o -> -u (biurko -> biurku)."},
+  {prompt:"Idę z ___ (brat)",answer:"bratem",case_name:"Instrumental",tip:"After 'z' (with) use the Instrumental. Masculine: add -em (brat -> bratem)."},
+  {prompt:"Nie lubię ___ (zima)",answer:"zimy",case_name:"Genitive",tip:"Negation of 'lubić' takes the Genitive. Feminine -a: -a -> -y (zima -> zimy)."},
+  {prompt:"Dam to ___ (siostra)",answer:"siostrze",case_name:"Dative",tip:"'Dać' (give) something to someone uses the Dative. Feminine -a: -a -> -e with stem changes (siostra -> siostrze)."}
+];
+
+// Preposition-case associations for MC
+const PREPOSITION_CASES = [
+  {prep:"w / we",case_name:"Locative",tip:"'W' (in) indicating location requires the Locative case."},
+  {prep:"na (location)",case_name:"Locative",tip:"'Na' (on/at) indicating location requires the Locative case."},
+  {prep:"na (direction)",case_name:"Accusative",tip:"'Na' (onto/to) indicating direction requires the Accusative case."},
+  {prep:"do",case_name:"Genitive",tip:"'Do' (to/towards) always requires the Genitive case."},
+  {prep:"z / ze (with)",case_name:"Instrumental",tip:"'Z' meaning 'with' requires the Instrumental case."},
+  {prep:"z / ze (from)",case_name:"Genitive",tip:"'Z' meaning 'from' requires the Genitive case."},
+  {prep:"bez",case_name:"Genitive",tip:"'Bez' (without) always requires the Genitive case."},
+  {prep:"dla",case_name:"Genitive",tip:"'Dla' (for) always requires the Genitive case."},
+  {prep:"o (about)",case_name:"Locative",tip:"'O' (about) requires the Locative case."},
+  {prep:"po",case_name:"Locative",tip:"'Po' (after/around) requires the Locative case."},
+  {prep:"przed",case_name:"Instrumental",tip:"'Przed' (before/in front of) requires the Instrumental case."},
+  {prep:"nad",case_name:"Instrumental",tip:"'Nad' (above/over) for location requires the Instrumental case."},
+  {prep:"pod",case_name:"Instrumental",tip:"'Pod' (under) for location requires the Instrumental case."},
+  {prep:"między",case_name:"Instrumental",tip:"'Między' (between) requires the Instrumental case."}
+];
+
+// Question words
+const QUESTION_WORDS = [
+  {word:"Co",meaning:"What",example:"Co to jest? (What is this?)"},
+  {word:"Kto",meaning:"Who",example:"Kto to jest? (Who is this?)"},
+  {word:"Gdzie",meaning:"Where",example:"Gdzie mieszkasz? (Where do you live?)"},
+  {word:"Kiedy",meaning:"When",example:"Kiedy przyjdziesz? (When will you come?)"},
+  {word:"Jak",meaning:"How",example:"Jak się masz? (How are you?)"},
+  {word:"Ile",meaning:"How many / How much",example:"Ile to kosztuje? (How much does it cost?)"},
+  {word:"Jaki",meaning:"What kind of / Which",example:"Jaki to kolor? (What color is this?)"},
+  {word:"Dlaczego",meaning:"Why",example:"Dlaczego płaczesz? (Why are you crying?)"},
+  {word:"Czy",meaning:"(yes/no question marker)",example:"Czy mówisz po polsku? (Do you speak Polish?)"}
+];
+
+// Negation pairs
+const NEGATION_PAIRS = [
+  {aff:"Ja pójdę na spacer.",neg:"Ja nie pójdę na spacer.",tip:"In Polish, add 'nie' before the verb to negate a sentence."},
+  {aff:"Mieszkałem we Francji.",neg:"Nie mieszkałem we Francji.",tip:"Place 'nie' directly before the verb. In past tense, 'nie' goes before the past form."},
+  {aff:"On kupi gazetę.",neg:"On nie kupi gazety.",tip:"With negation, the Accusative often changes to the Genitive (gazetę -> gazety)."},
+  {aff:"My piłyśmy kawę.",neg:"My nie piłyśmy kawy.",tip:"Negation: add 'nie' before verb. Accusative -> Genitive (kawę -> kawy)."},
+  {aff:"Ona tańczyła całą noc.",neg:"Ona nie tańczyła całą noc.",tip:"Add 'nie' before the verb. In this sentence the time expression stays the same."},
+  {aff:"Oni zaparkowali na ulicy.",neg:"Oni nie zaparkowali na ulicy.",tip:"Simply add 'nie' before the verb for negation."},
+  {aff:"Wczoraj oglądałem zdjęcia.",neg:"Wczoraj nie oglądałem zdjęć.",tip:"Negation: 'nie' before verb. Accusative plural -> Genitive plural (zdjęcia -> zdjęć)."},
+  {aff:"Wy rozmawialiście z Marią.",neg:"Wy nie rozmawialiście z Marią.",tip:"Add 'nie' before the verb. Instrumental after 'z' stays the same."},
+  {aff:"Czytam książkę.",neg:"Nie czytam książki.",tip:"Negation: add 'nie' before verb. Accusative -> Genitive (książkę -> książki)."},
+  {aff:"Mam brata.",neg:"Nie mam brata.",tip:"Add 'nie' before verb. 'Brata' is already Genitive-form Accusative, so it stays."}
+];
+
+// ============== CATEGORIES ==============
+const CATEGORIES = [
+  {id:"conjugation", name:"Verb Conjugation", icon:"&#9998;"},
+  {id:"gender", name:"Noun Gender", icon:"&#9792;&#9794;"},
+  {id:"adjective", name:"Adjective Agreement", icon:"&#9733;"},
+  {id:"cases", name:"Cases", icon:"&#128218;"},
+  {id:"sentence", name:"Sentence Construction", icon:"&#128221;"},
+  {id:"tense", name:"Tense Identification", icon:"&#9200;"},
+  {id:"negation", name:"Negation", icon:"&#10060;"},
+  {id:"question", name:"Question Formation", icon:"&#10067;"}
+];
+
+const COUNTS = [10, 20, 50];
+const POLISH_KEYS = ['ą','ę','ć','ś','ź','ż','ł','ń','ó'];
+
+// ============== STATE ==============
+let selectedCategories = new Set();
+let selectedCount = 20;
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let answered = false;
+let wrongAnswers = [];
+let categoryScores = {};
+let activeInput = null;
+
+// ============== INIT ==============
+function init() {
+  loadStats();
+  renderSetup();
+}
+
+function loadStats() {
+  try {
+    const s = JSON.parse(localStorage.getItem('polishGrammarStats') || '{}');
+    document.getElementById('statTotal').textContent = s.totalQuizzes || 0;
+    document.getElementById('statAvg').textContent = (s.avgScore || 0) + '%';
+    document.getElementById('statBest').textContent = s.bestStreak || 0;
+  } catch(e) {}
+}
+
+function saveStats(finalScore, finalBest) {
+  try {
+    const s = JSON.parse(localStorage.getItem('polishGrammarStats') || '{}');
+    s.totalQuizzes = (s.totalQuizzes || 0) + 1;
+    const totalScorePts = ((s.avgScore || 0) * ((s.totalQuizzes || 1) - 1) + finalScore);
+    s.avgScore = Math.round(totalScorePts / s.totalQuizzes);
+    s.bestStreak = Math.max(s.bestStreak || 0, finalBest);
+    // Track category performance
+    if (!s.categoryHistory) s.categoryHistory = {};
+    for (const [cat, data] of Object.entries(categoryScores)) {
+      if (!s.categoryHistory[cat]) s.categoryHistory[cat] = {correct:0, total:0};
+      s.categoryHistory[cat].correct += data.correct;
+      s.categoryHistory[cat].total += data.total;
+    }
+    localStorage.setItem('polishGrammarStats', JSON.stringify(s));
+    loadStats();
+  } catch(e) {}
+}
+
+// ============== SETUP ==============
+function renderSetup() {
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = CATEGORIES.map(c =>
+    `<button class="category-btn" data-cat="${c.id}" onclick="toggleCategory('${c.id}', this)" aria-pressed="false">
+      <span class="cat-icon">${c.icon}</span> ${c.name}
+    </button>`
+  ).join('');
+
+  const cs = document.getElementById('countSelector');
+  cs.innerHTML = COUNTS.map(n =>
+    `<button class="count-btn ${n===selectedCount?'selected':''}" onclick="selectCount(${n}, this)" aria-pressed="${n===selectedCount}">${n}</button>`
+  ).join('');
+}
+
+function toggleCategory(id, btn) {
+  if (selectedCategories.has(id)) {
+    selectedCategories.delete(id);
+    btn.classList.remove('selected');
+    btn.setAttribute('aria-pressed', 'false');
+  } else {
+    selectedCategories.add(id);
+    btn.classList.add('selected');
+    btn.setAttribute('aria-pressed', 'true');
+  }
+  document.getElementById('startBtn').disabled = selectedCategories.size === 0;
+}
+
+function selectCount(n, btn) {
+  selectedCount = n;
+  document.querySelectorAll('.count-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('selected');
+  btn.setAttribute('aria-pressed', 'true');
+}
+
+// ============== QUESTION GENERATION ==============
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pick(arr, n) { return shuffle(arr).slice(0, n); }
+function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generateQuestions() {
+  const cats = [...selectedCategories];
+  const perCat = Math.ceil(selectedCount / cats.length);
+  let allQs = [];
+
+  for (const cat of cats) {
+    categoryScores[cat] = {correct:0, total:0};
+    const qs = generateForCategory(cat, perCat);
+    allQs.push(...qs);
+  }
+
+  questions = shuffle(allQs).slice(0, selectedCount);
+}
+
+function generateForCategory(cat, count) {
+  const generators = {
+    conjugation: genConjugation,
+    gender: genGender,
+    adjective: genAdjective,
+    cases: genCases,
+    sentence: genSentence,
+    tense: genTense,
+    negation: genNegation,
+    question: genQuestion
+  };
+  const qs = [];
+  for (let i = 0; i < count * 3; i++) {
+    const q = generators[cat]();
+    if (q && !qs.find(x => x.questionText === q.questionText)) qs.push(q);
+    if (qs.length >= count) break;
+  }
+  return qs.slice(0, count);
+}
+
+function genConjugation() {
+  const verbs = Object.keys(CONJUGATIONS);
+  const verb = randItem(verbs);
+  const conj = CONJUGATIONS[verb];
+  const tenseType = randItem(['present', 'past_m', 'past_f']);
+  const tenseData = conj[tenseType];
+  const pronouns = Object.keys(tenseData);
+  const pronoun = randItem(pronouns);
+  const answer = tenseData[pronoun];
+
+  const tenseLabel = tenseType === 'present' ? 'present tense' :
+    tenseType === 'past_m' ? 'past tense (masculine)' : 'past tense (feminine)';
+
+  // Mix: sometimes MC, sometimes type
+  const isTyping = Math.random() > 0.5;
+
+  if (isTyping) {
+    return {
+      category: 'conjugation',
+      type: 'typing',
+      questionText: `Conjugate "${verb}" for "${pronoun}" in ${tenseLabel}:`,
+      prompt: `${pronoun} ___ (${verb})`,
+      answer: answer,
+      tip: `${tenseLabel} conjugation: ${Object.entries(tenseData).map(([p,v])=>`${p}: ${v}`).join(', ')}`
+    };
+  } else {
+    const otherForms = Object.values(tenseData).filter(v => v !== answer);
+    const wrongChoices = shuffle(otherForms).slice(0, 3);
+    while (wrongChoices.length < 3) wrongChoices.push(randItem(Object.values(CONJUGATIONS[randItem(verbs)].present)));
+    const choices = shuffle([answer, ...wrongChoices.slice(0, 3)]);
+    return {
+      category: 'conjugation',
+      type: 'multiple_choice',
+      questionText: `What is the ${tenseLabel} form of "${verb}" for "${pronoun}"?`,
+      prompt: `${pronoun} ___ (${verb})`,
+      answer: answer,
+      choices: choices,
+      tip: `${tenseLabel}: ${Object.entries(tenseData).map(([p,v])=>`${p}: ${v}`).join(', ')}`
+    };
+  }
+}
+
+function genGender() {
+  const item = randItem(NOUN_GENDERS);
+  const choices = shuffle(['masculine', 'feminine', 'neuter']);
+  return {
+    category: 'gender',
+    type: 'multiple_choice',
+    questionText: `What gender is "${item.noun}"?`,
+    answer: item.gender,
+    choices: choices,
+    tip: item.tip
+  };
+}
+
+function genAdjective() {
+  const pair = randItem(ADJ_PAIRS);
+  const askForFem = Math.random() > 0.3;
+
+  if (askForFem) {
+    if (Math.random() > 0.5) {
+      // Typing
+      return {
+        category: 'adjective',
+        type: 'typing',
+        questionText: `Give the feminine form of "${pair.masc}":`,
+        answer: pair.fem,
+        tip: pair.tip
+      };
+    } else {
+      const wrongFems = shuffle(ADJ_PAIRS.filter(p => p.fem !== pair.fem)).slice(0, 3).map(p => p.fem);
+      const choices = shuffle([pair.fem, ...wrongFems]);
+      return {
+        category: 'adjective',
+        type: 'multiple_choice',
+        questionText: `What is the feminine form of "${pair.masc}"?`,
+        answer: pair.fem,
+        choices: choices,
+        tip: pair.tip
+      };
+    }
+  } else {
+    const wrongMascs = shuffle(ADJ_PAIRS.filter(p => p.masc !== pair.masc)).slice(0, 3).map(p => p.masc);
+    const choices = shuffle([pair.masc, ...wrongMascs]);
+    return {
+      category: 'adjective',
+      type: 'multiple_choice',
+      questionText: `What is the masculine form of "${pair.fem}"?`,
+      answer: pair.masc,
+      choices: choices,
+      tip: pair.tip
+    };
+  }
+}
+
+function genCases() {
+  if (Math.random() > 0.4) {
+    // Fill in the blank
+    const q = randItem(CASE_QUESTIONS);
+    if (Math.random() > 0.5) {
+      return {
+        category: 'cases',
+        type: 'typing',
+        questionText: `Fill in the correct case form:`,
+        prompt: q.prompt,
+        answer: q.answer,
+        tip: `${q.case_name} case. ${q.tip}`
+      };
+    } else {
+      const wrongAnswers = shuffle(CASE_QUESTIONS.filter(x => x.answer !== q.answer)).slice(0, 3).map(x => x.answer);
+      const choices = shuffle([q.answer, ...wrongAnswers]);
+      return {
+        category: 'cases',
+        type: 'multiple_choice',
+        questionText: `Fill in the blank: ${q.prompt}`,
+        answer: q.answer,
+        choices: choices,
+        tip: `${q.case_name} case. ${q.tip}`
+      };
+    }
+  } else {
+    // Preposition -> case MC
+    const p = randItem(PREPOSITION_CASES);
+    const allCases = ['Nominative','Genitive','Dative','Accusative','Instrumental','Locative','Vocative'];
+    const wrongCases = shuffle(allCases.filter(c => c !== p.case_name)).slice(0, 3);
+    const choices = shuffle([p.case_name, ...wrongCases]);
+    return {
+      category: 'cases',
+      type: 'multiple_choice',
+      questionText: `Which case does the preposition "${p.prep}" require?`,
+      answer: p.case_name,
+      choices: choices,
+      tip: p.tip
+    };
+  }
+}
+
+function genSentence() {
+  const s = randItem(SENTENCES);
+  const words = s.pl.replace(/[.,!?]/g, '').split(/\s+/);
+
+  if (words.length <= 8) {
+    // Word ordering
+    const shuffled = shuffle(words);
+    // Make sure it's actually shuffled
+    if (shuffled.join(' ') === words.join(' ')) {
+      const tmp = shuffled[0];
+      shuffled[0] = shuffled[shuffled.length - 1];
+      shuffled[shuffled.length - 1] = tmp;
+    }
+    return {
+      category: 'sentence',
+      type: 'word_order',
+      questionText: `Arrange the words to form a correct Polish sentence:`,
+      hint: s.en,
+      words: shuffled,
+      answer: words.join(' '),
+      originalWords: words,
+      tip: `Translation: "${s.en}". Polish word order can be flexible but follows standard SVO for basic sentences.`
+    };
+  } else {
+    // Translation MC
+    const wrongTrans = shuffle(SENTENCES.filter(x => x.en !== s.en)).slice(0, 3).map(x => x.en);
+    const choices = shuffle([s.en, ...wrongTrans]);
+    return {
+      category: 'sentence',
+      type: 'multiple_choice',
+      questionText: `What does this sentence mean?\n"${s.pl}"`,
+      answer: s.en,
+      choices: choices,
+      tip: `"${s.pl}" = "${s.en}"`
+    };
+  }
+}
+
+function genTense() {
+  const s = randItem(SENTENCES);
+  const tenseMap = {
+    'present': 'Present tense',
+    'past': 'Past tense',
+    'past continuous': 'Past continuous',
+    'future': 'Future tense'
+  };
+  const allTenses = Object.values(tenseMap);
+  const correct = tenseMap[s.tense];
+  const wrong = shuffle(allTenses.filter(t => t !== correct)).slice(0, 3);
+  const choices = shuffle([correct, ...wrong]);
+
+  const tenseExplanations = {
+    'Present tense': 'Present tense in Polish uses forms like -m, -sz, -my, -cie for verbs.',
+    'Past tense': 'Past tense uses -łem/-łam, -łeś/-łaś, -ł/-ła endings added to the verb stem.',
+    'Past continuous': 'Polish past continuous is formed similarly to past tense but implies ongoing action, often with context words like "jednocześnie" (simultaneously).',
+    'Future tense': 'Future tense is formed with będę + infinitive (imperfective) or perfective verb forms (pójdę, kupię).'
+  };
+
+  return {
+    category: 'tense',
+    type: 'multiple_choice',
+    questionText: `What tense is this sentence?\n"${s.pl}"`,
+    answer: correct,
+    choices: choices,
+    tip: `${tenseExplanations[correct]} Translation: "${s.en}"`
+  };
+}
+
+function genNegation() {
+  const pair = randItem(NEGATION_PAIRS);
+
+  if (Math.random() > 0.4) {
+    // Type the negated form
+    return {
+      category: 'negation',
+      type: 'typing',
+      questionText: `Negate this sentence:`,
+      prompt: `"${pair.aff}"`,
+      answer: pair.neg,
+      tip: pair.tip
+    };
+  } else {
+    const wrongNegs = shuffle(NEGATION_PAIRS.filter(p => p.neg !== pair.neg)).slice(0, 3).map(p => p.neg);
+    const choices = shuffle([pair.neg, ...wrongNegs]);
+    return {
+      category: 'negation',
+      type: 'multiple_choice',
+      questionText: `Which is the correct negation of:\n"${pair.aff}"`,
+      answer: pair.neg,
+      choices: choices,
+      tip: pair.tip
+    };
+  }
+}
+
+function genQuestion() {
+  if (Math.random() > 0.5) {
+    // Match question word to meaning
+    const qw = randItem(QUESTION_WORDS);
+    const wrongMeanings = shuffle(QUESTION_WORDS.filter(w => w.meaning !== qw.meaning)).slice(0, 3).map(w => w.meaning);
+    const choices = shuffle([qw.meaning, ...wrongMeanings]);
+    return {
+      category: 'question',
+      type: 'multiple_choice',
+      questionText: `What does the question word "${qw.word}" mean?`,
+      answer: qw.meaning,
+      choices: choices,
+      tip: `${qw.word} = ${qw.meaning}. Example: ${qw.example}`
+    };
+  } else {
+    // Which question word to use
+    const qw = randItem(QUESTION_WORDS);
+    const wrongWords = shuffle(QUESTION_WORDS.filter(w => w.word !== qw.word)).slice(0, 3).map(w => w.word);
+    const choices = shuffle([qw.word, ...wrongWords]);
+    return {
+      category: 'question',
+      type: 'multiple_choice',
+      questionText: `Which question word means "${qw.meaning}"?`,
+      answer: qw.word,
+      choices: choices,
+      tip: `${qw.word} = ${qw.meaning}. Example: ${qw.example}`
+    };
+  }
+}
+
+// ============== QUIZ FLOW ==============
+function startQuiz() {
+  generateQuestions();
+  currentQ = 0;
+  score = 0;
+  streak = 0;
+  bestStreak = 0;
+  wrongAnswers = [];
+  answered = false;
+
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentQ];
+  const card = document.getElementById('questionCard');
+  const catLabel = CATEGORIES.find(c => c.id === q.category)?.name || q.category;
+
+  // Update progress
+  const pct = ((currentQ) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${currentQ + 1}/${questions.length}`;
+  document.getElementById('streakBadge').innerHTML = `&#9889; ${streak}`;
+
+  let html = `
+    <div class="question-header">
+      <span class="question-type">${q.type === 'typing' ? 'Type Answer' : q.type === 'word_order' ? 'Word Order' : 'Multiple Choice'}</span>
+      <span class="question-category">${catLabel}</span>
+    </div>
+    <div class="question-text">${formatQuestionText(q)}</div>
+  `;
+
+  if (q.type === 'multiple_choice') {
+    html += `<div class="choices">`;
+    q.choices.forEach((ch, i) => {
+      html += `<button class="choice-btn" onclick="checkMC(this, '${escapeAttr(ch)}', '${escapeAttr(q.answer)}')">${ch}</button>`;
+    });
+    html += `</div>`;
+  } else if (q.type === 'typing') {
+    html += `
+      <div class="answer-input-wrap">
+        <input class="answer-input" id="answerInput" type="text" placeholder="Type your answer..." autocomplete="off" onkeydown="if(event.key==='Enter')checkTyping()" aria-label="Type your answer">
+        <button class="submit-btn" onclick="checkTyping()">Check</button>
+      </div>
+      <div class="polish-kbd">
+        ${POLISH_KEYS.map(k => `<button class="kbd-key" onclick="insertChar('${k}')" aria-label="Insert ${k}">${k}</button>`).join('')}
+        ${POLISH_KEYS.map(k => `<button class="kbd-key" onclick="insertChar('${k.toUpperCase()}')" aria-label="Insert ${k.toUpperCase()}">${k.toUpperCase()}</button>`).join('')}
+      </div>
+    `;
+  } else if (q.type === 'word_order') {
+    html += `
+      <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px;">Hint: ${q.hint}</p>
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:6px;">Your answer (click to remove):</p>
+      <div class="answer-slots" id="answerSlots"></div>
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:6px;">Available words (click to add):</p>
+      <div class="word-bank" id="wordBank">
+        ${q.words.map((w, i) => `<span class="word-chip" data-idx="${i}" onclick="addWord(this, '${escapeAttr(w)}')">${w}</span>`).join('')}
+      </div>
+      <button class="submit-btn" onclick="checkWordOrder()" style="width:100%;margin-top:8px;">Check Order</button>
+    `;
+  }
+
+  html += `<div id="feedbackArea"></div>`;
+  card.innerHTML = html;
+
+  if (q.type === 'typing') {
+    setTimeout(() => {
+      const inp = document.getElementById('answerInput');
+      if (inp) { inp.focus(); activeInput = inp; }
+    }, 100);
+  }
+}
+
+function formatQuestionText(q) {
+  let text = q.questionText.replace(/\n/g, '<br>');
+  if (q.prompt) {
+    text += `<br><span style="font-size:1.1em;margin-top:8px;display:inline-block;">${q.prompt.replace(/___/, '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span>')}</span>`;
+  }
+  return text;
+}
+
+function escapeAttr(s) {
+  return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ============== WORD ORDER ==============
+let wordOrderAnswer = [];
+
+function addWord(chip, word) {
+  if (answered) return;
+  chip.classList.add('placed');
+  wordOrderAnswer.push({word, idx: chip.dataset.idx});
+  renderSlots();
+}
+
+function removeWord(idx) {
+  if (answered) return;
+  const removed = wordOrderAnswer.splice(idx, 1)[0];
+  const chip = document.querySelector(`.word-chip[data-idx="${removed.idx}"]`);
+  if (chip) chip.classList.remove('placed');
+  renderSlots();
+}
+
+function renderSlots() {
+  const slots = document.getElementById('answerSlots');
+  slots.innerHTML = wordOrderAnswer.map((w, i) =>
+    `<span class="answer-slot-chip" onclick="removeWord(${i})">${w.word}</span>`
+  ).join('');
+}
+
+function checkWordOrder() {
+  if (answered) return;
+  const q = questions[currentQ];
+  const userAnswer = wordOrderAnswer.map(w => w.word).join(' ');
+  const correct = normalize(userAnswer) === normalize(q.answer);
+  handleAnswer(correct, userAnswer, q.answer, q.tip);
+}
+
+// ============== ANSWER CHECKING ==============
+function normalize(s) {
+  return s.toLowerCase().trim().replace(/[.,!?;:'"]/g, '').replace(/\s+/g, ' ');
+}
+
+function checkMC(btn, chosen, correct) {
+  if (answered) return;
+  const isCorrect = chosen === correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) {
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+  }
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  handleAnswer(isCorrect, chosen, correct, questions[currentQ].tip);
+}
+
+function checkTyping() {
+  if (answered) return;
+  const input = document.getElementById('answerInput');
+  const userAnswer = input.value.trim();
+  if (!userAnswer) return;
+  const q = questions[currentQ];
+  const isCorrect = normalize(userAnswer) === normalize(q.answer);
+  input.classList.add(isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+  document.querySelector('.submit-btn').disabled = true;
+  handleAnswer(isCorrect, userAnswer, q.answer, q.tip);
+}
+
+function handleAnswer(isCorrect, userAnswer, correctAnswer, tip) {
+  answered = true;
+  const q = questions[currentQ];
+
+  // Update scores
+  categoryScores[q.category].total++;
+  if (isCorrect) {
+    score++;
+    streak++;
+    bestStreak = Math.max(bestStreak, streak);
+    categoryScores[q.category].correct++;
+  } else {
+    streak = 0;
+    wrongAnswers.push({question: q.questionText + (q.prompt ? ' ' + q.prompt : ''), userAnswer, correctAnswer, tip, category: q.category});
+  }
+  document.getElementById('streakBadge').innerHTML = `&#9889; ${streak}`;
+
+  // Show feedback
+  const area = document.getElementById('feedbackArea');
+  area.innerHTML = `
+    <div class="feedback ${isCorrect ? 'correct' : 'wrong'}">
+      <div class="fb-title">${isCorrect ? 'Correct!' : 'Not quite right'}</div>
+      ${!isCorrect ? `<div>Your answer: <strong>${userAnswer}</strong><br>Correct answer: <strong>${correctAnswer}</strong></div>` : ''}
+      <div class="grammar-tip">${tip}</div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">${currentQ < questions.length - 1 ? 'Next Question' : 'See Results'}</button>
+  `;
+}
+
+function nextQuestion() {
+  currentQ++;
+  wordOrderAnswer = [];
+  if (currentQ >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function insertChar(ch) {
+  const input = document.getElementById('answerInput');
+  if (!input || input.disabled) return;
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  input.value = input.value.substring(0, start) + ch + input.value.substring(end);
+  input.selectionStart = input.selectionEnd = start + ch.length;
+  input.focus();
+}
+
+// ============== RESULTS ==============
+function showResults() {
+  document.getElementById('quizScreen').classList.add('hidden');
+  const screen = document.getElementById('resultsScreen');
+  screen.classList.remove('hidden');
+
+  const pct = Math.round((score / questions.length) * 100);
+  saveStats(pct, bestStreak);
+
+  const progressFill = document.getElementById('progressFill');
+  if (progressFill) progressFill.style.width = '100%';
+
+  let color;
+  if (pct >= 80) color = 'var(--success)';
+  else if (pct >= 50) color = '#FF9800';
+  else color = 'var(--error)';
+
+  let html = `
+    <div class="card">
+      <div class="results-score">
+        <div class="score-circle" style="background:${color};">${pct}%</div>
+        <div style="font-size:1.3rem;font-weight:700;margin-bottom:4px;">${score} / ${questions.length} correct</div>
+        <div class="score-label">Best streak this quiz: ${bestStreak}</div>
+        <div class="score-label" style="margin-top:8px;">${pct >= 80 ? 'Excellent work! You have a strong grasp of Polish grammar.' : pct >= 50 ? 'Good effort! Keep practicing the areas below.' : 'Keep studying! Review the grammar tips below.'}</div>
+      </div>
+    </div>
+  `;
+
+  // Category breakdown
+  const catEntries = Object.entries(categoryScores).filter(([,d]) => d.total > 0);
+  if (catEntries.length > 0) {
+    html += `<div class="card"><h3 style="margin-bottom:12px;">Category Performance</h3>`;
+    catEntries.sort((a,b) => (a[1].correct/a[1].total) - (b[1].correct/b[1].total));
+    catEntries.forEach(([cat, data]) => {
+      const catPct = Math.round((data.correct / data.total) * 100);
+      const catName = CATEGORIES.find(c => c.id === cat)?.name || cat;
+      const barColor = catPct >= 80 ? 'var(--success)' : catPct >= 50 ? '#FF9800' : 'var(--error)';
+      html += `
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.9rem;">
+            <span>${catName}</span>
+            <span style="font-weight:700;color:${barColor}">${data.correct}/${data.total} (${catPct}%)</span>
+          </div>
+          <div class="quiz-progress-bar"><div class="progress-fill" style="width:${catPct}%;background:${barColor};"></div></div>
+        </div>
+      `;
+    });
+
+    // Weak areas tips
+    const weakCats = catEntries.filter(([,d]) => (d.correct / d.total) < 0.7);
+    if (weakCats.length > 0) {
+      html += `<div class="weak-areas"><h3>Areas to Review</h3>`;
+      const tips = {
+        conjugation: "Practice verb endings. Regular -ać verbs: -am, -asz, -a, -amy, -acie, -ają. Pay attention to stem changes in -eć and consonant-stem verbs.",
+        gender: "Remember the pattern: nouns ending in a consonant are usually masculine, -a is feminine, -o/-e/-um is neuter. Learn exceptions individually.",
+        adjective: "Most masculine adjectives ending in -y change to -a for feminine. Watch for -ki -> -ka, -gi -> -ga patterns.",
+        cases: "Focus on which prepositions trigger which cases. Practice the most common: Genitive (do, z, bez), Instrumental (z=with, przed), Locative (w, na=at).",
+        sentence: "Polish word order is flexible but SVO (Subject-Verb-Object) is standard. Question words come first.",
+        tense: "Look for verb endings: present (-m, -sz, -my), past (-łem/-łam), future (będę + inf. or perfective forms like pójdę).",
+        negation: "Add 'nie' before the verb. Important: negation changes Accusative to Genitive!",
+        question: "Learn the key question words: Kto (who), Co (what), Gdzie (where), Kiedy (when), Jak (how), Ile (how many), Dlaczego (why), Czy (yes/no)."
+      };
+      weakCats.forEach(([cat]) => {
+        const catName = CATEGORIES.find(c => c.id === cat)?.name || cat;
+        html += `<div class="weak-item"><span>${catName}</span></div><p style="font-size:0.85rem;color:var(--text-secondary);padding:4px 0 8px;">${tips[cat] || ''}</p>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Wrong answers review
+  if (wrongAnswers.length > 0) {
+    html += `<div class="card wrong-review"><h3>Review Your Mistakes</h3>`;
+    wrongAnswers.forEach(w => {
+      html += `
+        <div class="wrong-item">
+          <div class="wi-q">${w.question}</div>
+          <div class="wi-your">Your answer: ${w.userAnswer}</div>
+          <div class="wi-correct">Correct: ${w.correctAnswer}</div>
+          <div class="wi-tip">${w.tip}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  html += `
+    <div class="card">
+      <div class="results-links">
+        <h4>Continue Studying</h4>
+        <a href="grammar.html" class="results-link">📚 Review Grammar Book</a>
+        <a href="vocabulary.html" class="results-link">📖 Browse Vocabulary</a>
+        <a href="quiz-pl-en.html" class="results-link">🔄 Try Vocabulary Quiz</a>
+      </div>
+    </div>
+    <button class="start-btn" onclick="retryQuiz()" style="margin-bottom:8px;">Try Again (Same Categories)</button>
+    <button class="start-btn" onclick="backToSetup()" style="background:var(--navy);">Change Categories</button>
+  `;
+
+  screen.innerHTML = html;
+}
+
+function retryQuiz() {
+  document.getElementById('resultsScreen').classList.add('hidden');
+  startQuiz();
+}
+
+function backToSetup() {
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('setupScreen').classList.remove('hidden');
+}
+
+// ============== KEYBOARD SHORTCUT ==============
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && answered) {
+    e.preventDefault();
+    nextQuestion();
+  }
+});
+
+// Init on load
+init();
+</script>
+</body>
+</html>

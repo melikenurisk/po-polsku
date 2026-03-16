@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polish Grammar Book — A1→A2</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<script src="js/shared.js" defer></script>
+<style>
+/* ===== Grammar-specific design tokens ===== */
+:root {
+  --accent-light: #fdf0f0;
+  --accent-blue: #eef2f8;
+  --sidebar-bg: #1B2A4A;
+  --sidebar-text: #ccd6e6;
+  --sidebar-active: #DC143C;
+  --vocab-bg: #f0f7ee;
+  --vocab-border: #8aba78;
+  --example-bg: #fff9f0;
+  --example-border: #e8c87a;
+  --table-header: #1B2A4A;
+  --table-stripe: #f5f3ef;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+}
+
+/* ===== Grammar-specific dark overrides ===== */
+[data-theme="dark"] {
+  --accent-light: #2a1a1a;
+  --accent-blue: #1a2233;
+  --vocab-bg: #1a2a1a;
+  --vocab-border: #4a7a3a;
+  --example-bg: #2a2210;
+  --example-border: #8a7a3a;
+  --table-header: #2a3a5a;
+  --table-stripe: #1e2838;
+}
+
+/* ===== Grammar page body layout ===== */
+html { font-size: 17px; }
+body {
+  display: flex;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 300px;
+  height: calc(100vh - var(--nav-height));
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s;
+  padding-bottom: 2rem;
+}
+.sidebar-header {
+  padding: 1.5rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+.sidebar-header h1 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+.sidebar-header .subtitle {
+  font-size: 0.78rem;
+  color: var(--sidebar-text);
+  opacity: 0.7;
+}
+.flag-bar {
+  height: 4px;
+  background: linear-gradient(to right, #fff 50%, var(--red) 50%);
+  margin: 0.8rem 0 0;
+}
+.sidebar nav { padding: 0.5rem 0; }
+.sidebar nav a {
+  display: flex;
+  align-items: baseline;
+  padding: 0.5rem 1.2rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  gap: 0.5rem;
+}
+.sidebar nav a:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+.sidebar nav a.active {
+  border-left-color: var(--red);
+  color: #fff;
+  background: rgba(220,20,60,0.1);
+  font-weight: 600;
+}
+.sidebar nav a .ch-num {
+  min-width: 1.4rem;
+  color: var(--red);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.progress-bar-container {
+  margin: 1rem 1.2rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--red);
+  border-radius: var(--radius);
+  width: 0%;
+  transition: width 0.5s;
+}
+.progress-text {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--sidebar-text);
+  opacity: 0.6;
+  margin-top: 0.3rem;
+  padding: 0 1.2rem;
+}
+
+/* ===== SIDEBAR TOGGLE (mobile) ===== */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  bottom: var(--sp-6);
+  left: var(--sp-6);
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all var(--ease);
+}
+.sidebar-toggle:hover {
+  background: var(--navy-light);
+  transform: scale(1.05);
+}
+
+/* ===== MAIN ===== */
+.main {
+  margin-left: 300px;
+  flex: 1;
+  max-width: 860px;
+  padding: 2rem 2.5rem 4rem;
+}
+
+/* ===== CHAPTER ===== */
+.chapter {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 2.5rem 2.5rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--red);
+}
+.chapter-num {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.chapter h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--navy);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+[data-theme="dark"] .chapter h2 { color: #c0d0e8; }
+.chapter h3 {
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin: 1.5rem 0 0.7rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--red);
+  display: inline-block;
+}
+[data-theme="dark"] .chapter h3 { color: #b0c0d8; }
+.chapter p, .chapter li { margin-bottom: 0.5rem; }
+.chapter ul, .chapter ol { padding-left: 1.3rem; margin-bottom: 1rem; }
+
+/* ===== GRAMMAR TABLES ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.92rem;
+}
+th {
+  background: var(--table-header);
+  color: #fff;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+td {
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+tr:nth-child(even) td { background: var(--table-stripe); }
+.polish-word {
+  font-weight: 600;
+  color: var(--red);
+}
+
+/* ===== EXAMPLE BOX ===== */
+.example-box {
+  background: var(--example-bg);
+  border-left: 4px solid var(--example-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0.9rem 1.2rem;
+  margin: 0.8rem 0 1rem;
+}
+.example-box .pl {
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--navy);
+}
+[data-theme="dark"] .example-box .pl { color: #c0d0e8; }
+.example-box .en {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ===== VOCAB BOX ===== */
+.vocab-box {
+  background: var(--vocab-bg);
+  border: 1px solid var(--vocab-border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.2rem;
+  margin: 1.2rem 0;
+}
+.vocab-box-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--vocab-border);
+  margin-bottom: 0.5rem;
+}
+[data-theme="dark"] .vocab-box-title { color: #8aba78; }
+.vocab-box .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.vocab-box .tag {
+  background: rgba(138,186,120,0.15);
+  border: 1px solid rgba(138,186,120,0.3);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+/* ===== NOTE ===== */
+.note {
+  background: var(--accent-blue);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1.2rem;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+.note strong { color: var(--navy); }
+[data-theme="dark"] .note strong { color: #a0c0e8; }
+
+/* ===== COVER MINI ===== */
+.cover-mini {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+}
+.cover-mini h1 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+[data-theme="dark"] .cover-mini h1 { color: #c0d0e8; }
+.cover-mini p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ===== CATEGORY GROUPS ===== */
+.category {
+  margin-bottom: 1rem;
+}
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s;
+  user-select: none;
+}
+.category-header:hover {
+  border-color: var(--red);
+  box-shadow: var(--shadow);
+}
+.category-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.category-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.category-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+.category-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+.category-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.category-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+.category-arrow {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: transform 0.3s;
+}
+.category.open .category-arrow {
+  transform: rotate(180deg);
+}
+.category.open .category-header {
+  border-color: var(--red);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: none;
+}
+.category-content {
+  display: none;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 1.5rem;
+  background: var(--bg-alt);
+}
+.category.open .category-content {
+  display: block;
+}
+.category-content .chapter {
+  margin-bottom: 1.5rem;
+}
+.category-content .chapter:last-child {
+  margin-bottom: 0;
+}
+
+/* Sidebar group labels */
+.sidebar-group-label {
+  padding: 0.6rem 1.2rem 0.2rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  margin-top: 0.3rem;
+}
+
+/* ===== OVERLAY (sidebar mobile) ===== */
+.grammar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 50;
+}
+.grammar-overlay.active { display: block; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-toggle { display: flex; }
+  .main { margin-left: 0; padding: 1.2rem; padding-top: 1rem; }
+  .chapter { padding: 1.5rem 1.2rem; }
+  .category-header { padding: 1rem; }
+  .category-icon { font-size: 1.4rem; }
+  .category-title { font-size: 1.05rem; }
+  .category-desc { font-size: 0.8rem; }
+  .category-content { padding: 1rem; }
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+  .main { padding: 0.8rem; padding-top: 0.8rem; }
+  .chapter { padding: 1.2rem 1rem; margin-bottom: 1.5rem; }
+  .chapter h2 { font-size: 1.3rem; }
+  .chapter h3 { font-size: 1rem; }
+  .category-meta .category-count { display: none; }
+  .category-content { padding: 0.75rem; }
+  .category-content .chapter { padding: 1.5rem 1rem 1rem; }
+  .example-box { padding: 0.7rem 0.9rem; }
+  .vocab-box { padding: 0.7rem 0.9rem; }
+  .note { padding: 0.7rem 0.9rem; }
+  .sidebar-toggle { bottom: var(--sp-4); left: var(--sp-4); width: 40px; height: 40px; }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .sidebar, .sidebar-toggle, .theme-toggle { display: none !important; }
+  .top-nav { display: none !important; }
+  .main { margin-left: 0; max-width: 100%; padding: 0; }
+  .chapter { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; margin-bottom: 1rem; }
+  .category-content { display: block !important; }
+  .category-header { display: none !important; }
+  body { background: white; padding-top: 0; }
+}
+
+/* Cross-links */
+.cross-links { margin-top: var(--sp-10); padding-top: var(--sp-8); border-top: 1px solid var(--border); }
+.cross-links h3 { margin-bottom: var(--sp-4); }
+.cross-links__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
+.cross-link-card {
+  display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-5);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text); transition: all 0.25s;
+}
+.cross-link-card:hover { border-color: var(--red); transform: translateY(-2px); box-shadow: var(--shadow-hover); color: var(--text); }
+.cross-link-icon { font-size: 1.5rem; }
+.cross-link-title { font-weight: 600; font-size: 0.95rem; }
+.cross-link-desc { font-size: 0.8rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="grammar-overlay" id="grammarOverlay" onclick="toggleGrammarSidebar()"></div>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleGrammarSidebar()" aria-label="Toggle chapter navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
+
+<aside class="sidebar" id="sidebar" aria-label="Chapter navigation">
+  <div class="sidebar-header">
+    <h1>Polish Grammar</h1>
+    <div class="subtitle">A1 &rarr; A2 &bull; Busuu Companion</div>
+    <div class="flag-bar"></div>
+  </div>
+  <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar"></div></div>
+  <div class="progress-text" id="progressText">Scroll to track progress</div>
+  <nav id="sidebarNav">
+    <div class="sidebar-group-label">Foundations</div>
+    <a href="#ch1" data-cat="cat-foundations"><span class="ch-num">1</span> Alphabet &amp; Pronunciation</a>
+    <a href="#ch2" data-cat="cat-foundations"><span class="ch-num">2</span> Personal Pronouns</a>
+    <div class="sidebar-group-label">Core Verbs</div>
+    <a href="#ch3" data-cat="cat-verbs"><span class="ch-num">3</span> Verb: By&#263; (To Be)</a>
+    <a href="#ch4" data-cat="cat-verbs"><span class="ch-num">4</span> Verb: Mie&#263; (To Have)</a>
+    <div class="sidebar-group-label">Nouns &amp; Adjectives</div>
+    <a href="#ch5" data-cat="cat-nouns"><span class="ch-num">5</span> Noun Gender</a>
+    <a href="#ch6" data-cat="cat-nouns"><span class="ch-num">6</span> Adjective Agreement</a>
+    <a href="#ch7" data-cat="cat-nouns"><span class="ch-num">7</span> Noun Cases</a>
+    <div class="sidebar-group-label">Verb Tenses</div>
+    <a href="#ch8" data-cat="cat-tenses"><span class="ch-num">8</span> Present Tense Verbs</a>
+    <a href="#ch9" data-cat="cat-tenses"><span class="ch-num">9</span> Past Tense</a>
+    <a href="#ch10" data-cat="cat-tenses"><span class="ch-num">10</span> Past Continuous</a>
+    <a href="#ch11" data-cat="cat-tenses"><span class="ch-num">11</span> Future Tense</a>
+    <div class="sidebar-group-label">Sentence Building</div>
+    <a href="#ch12" data-cat="cat-sentences"><span class="ch-num">12</span> Negation</a>
+    <a href="#ch13" data-cat="cat-sentences"><span class="ch-num">13</span> Questions</a>
+    <a href="#ch14" data-cat="cat-sentences"><span class="ch-num">14</span> Suggestions &amp; Requests</a>
+    <a href="#ch15" data-cat="cat-sentences"><span class="ch-num">15</span> Numbers &amp; Age</a>
+    <a href="#ch16" data-cat="cat-sentences"><span class="ch-num">16</span> Days &amp; Time</a>
+    <a href="#ch17" data-cat="cat-sentences"><span class="ch-num">17</span> Prepositions of Place</a>
+    <a href="#ch18" data-cat="cat-sentences"><span class="ch-num">18</span> Possessives &amp; Family</a>
+  </nav>
+</aside>
+
+<main class="main" id="main-content">
+
+<!-- COVER -->
+<div class="cover-mini">
+  <h1>Gramatyka Polska</h1>
+  <p>18 chapters &bull; A1&rarr;A2 Level &bull; From your Busuu vocabulary</p>
+</div>
+
+<!-- ===== CATEGORY: FOUNDATIONS (Ch 1-2) ===== -->
+<div class="category" id="cat-foundations">
+  <div class="category-header" onclick="toggleCategory('cat-foundations')" role="button" tabindex="0" aria-expanded="false">
+    <div class="category-info">
+      <span class="category-icon">&#x1F524;</span>
+      <div>
+        <h2 class="category-title">Foundations</h2>
+        <p class="category-desc">Alphabet, pronunciation &amp; pronouns</p>
+      </div>
+    </div>
+    <div class="category-meta">
+      <span class="category-count">2 chapters</span>
+      <span class="category-arrow">&#x25BE;</span>
+    </div>
+  </div>
+  <div class="category-content">
+
+<!-- ===================== CHAPTER 1 ===================== -->
+<section class="chapter" id="ch1">
+<div class="chapter-num">Chapter 1</div>
+<h2>Polish Alphabet &amp; Pronunciation</h2>
+
+<p>Polish uses the Latin alphabet with several additional characters. Mastering these sounds early is essential, as many have no English equivalent.</p>
+
+<h3>The Polish Alphabet (32 Letters)</h3>
+<p>The standard Polish alphabet has 32 letters: the 26 Latin letters (minus Q, V, X) plus 9 special characters.</p>
+
+<table>
+<tr><th scope="col">Letter</th><th scope="col">Sound</th><th scope="col">Approximate English</th><th scope="col">Example from Your Vocab</th></tr>
+<tr><td class="polish-word">&#260; &#261;</td><td>Nasal "on"</td><td>Like "on" in French "bon"</td><td>restauracja → restauracj<b>a</b></td></tr>
+<tr><td class="polish-word">&#262; &#263;</td><td>Soft "ch"</td><td>Like "ch" in "cheese" but softer</td><td><b>&#263;</b>wiczenie (exercise)</td></tr>
+<tr><td class="polish-word">&#280; &#281;</td><td>Nasal "en"</td><td>Like "en" in French "bien"</td><td>si<b>&#281;</b> (oneself), r<b>&#281;</b>ka (arm)</td></tr>
+<tr><td class="polish-word">&#321; &#322;</td><td>"w" sound</td><td>Like English "w" in "water"</td><td><b>&#322;</b>&#243;&#380;ko (bed), ma<b>&#322;</b>y (small)</td></tr>
+<tr><td class="polish-word">&#323; &#324;</td><td>Soft "n"</td><td>Like "ny" in "canyon"</td><td>dzie<b>&#324;</b> (day), ko<b>&#324;</b></td></tr>
+<tr><td class="polish-word">&#211; &#243;</td><td>"oo" sound</td><td>Like "oo" in "boot"</td><td>&#380;&#243;<b>&#322;</b>ty (yellow), m<b>&#243;</b>wi&#263; (speak)</td></tr>
+<tr><td class="polish-word">&#346; &#347;</td><td>Soft "sh"</td><td>Like "sh" but softer, tongue at teeth</td><td><b>&#347;</b>nieg (snow), nie<b>&#347;</b>mia&#322;y (shy)</td></tr>
+<tr><td class="polish-word">&#377; &#378;</td><td>Soft "zh"</td><td>Like "s" in "measure" but softer</td><td>pro<b>&#378;</b>ba, &#378;le</td></tr>
+<tr><td class="polish-word">&#379; &#380;</td><td>"zh" sound</td><td>Like "s" in "measure"</td><td><b>&#380;</b>onaty (married), &#322;&#243;<b>&#380;</b>ko (bed)</td></tr>
+</table>
+
+<h3>Key Pronunciation Rules</h3>
+<ul>
+<li><strong>Stress</strong> almost always falls on the <strong>second-to-last syllable</strong>: re-stau-<strong>RA</strong>-cja, u-ni-wer-sy-<strong>TE</strong>-tu</li>
+<li><strong>sz</strong> = "sh" (like English "sh"): <em>szko&#322;a</em> (school), <em>szafa</em> (wardrobe)</li>
+<li><strong>cz</strong> = "ch" (like English "ch"): <em>czerwony</em> (red), <em>czarny</em> (black)</li>
+<li><strong>rz / &#380;</strong> = same sound "zh": <em>rz&#261;d</em> (aisle), <em>&#380;el</em> (gel)</li>
+<li><strong>ch / h</strong> = same sound, like Scottish "loch": <em>chory</em> (sick), <em>chrapać</em> (snore)</li>
+<li><strong>w</strong> = "v" sound: <em>woda</em> (water), <em>wiosna</em> (spring)</li>
+<li><strong>j</strong> = "y" sound: <em>ja</em> (I), <em>jestem</em> (I am)</li>
+</ul>
+
+<div class="note">
+<strong>Tip:</strong> Polish spelling is very consistent &mdash; once you learn the rules, you can read any word correctly. Unlike English, there are almost no exceptions!
+</div>
+</section>
+
+<!-- ===================== CHAPTER 2 ===================== -->
+<section class="chapter" id="ch2">
+<div class="chapter-num">Chapter 2</div>
+<h2>Personal Pronouns</h2>
+
+<p>Polish has more personal pronouns than English because it distinguishes gender in the 3rd person singular <em>and</em> in the 3rd person plural.</p>
+
+<table>
+<tr><th scope="col">Person</th><th scope="col">Polish</th><th scope="col">English</th><th scope="col">Notes</th></tr>
+<tr><td>1st sing.</td><td class="polish-word">ja</td><td>I</td><td></td></tr>
+<tr><td>2nd sing. (informal)</td><td class="polish-word">ty</td><td>you</td><td>For friends, family, peers</td></tr>
+<tr><td>3rd sing. (masc.)</td><td class="polish-word">on</td><td>he</td><td></td></tr>
+<tr><td>3rd sing. (fem.)</td><td class="polish-word">ona</td><td>she</td><td></td></tr>
+<tr><td>3rd sing. (neut.)</td><td class="polish-word">ono</td><td>it</td><td>Rarely used; for children/animals</td></tr>
+<tr><td>1st pl.</td><td class="polish-word">my</td><td>we</td><td></td></tr>
+<tr><td>2nd pl.</td><td class="polish-word">wy</td><td>you (all)</td><td>Informal plural "you"</td></tr>
+<tr><td>3rd pl. (masc.)</td><td class="polish-word">oni</td><td>they</td><td>At least one male in group</td></tr>
+<tr><td>3rd pl. (fem./non-masc.)</td><td class="polish-word">one</td><td>they</td><td>All-female or all non-human group</td></tr>
+</table>
+
+<h3>Formal Address: Pan / Pani</h3>
+<p>In formal situations, Polish uses <span class="polish-word">pan</span> (Mr / sir) and <span class="polish-word">pani</span> (Ms / madam) instead of <em>ty</em>. These take <strong>3rd person singular</strong> verb forms:</p>
+
+<div class="example-box">
+<div class="pl">Czy pan m&oacute;wi po angielsku?</div>
+<div class="en">Do you (sir) speak English?</div>
+</div>
+<div class="example-box">
+<div class="pl">Sk&#261;d pani jest?</div>
+<div class="en">Where are you (madam) from?</div>
+</div>
+
+<div class="note">
+<strong>Rule of thumb:</strong> Use <em>ty</em> with people your age or younger, friends, and children. Use <em>pan/pani</em> with strangers, older people, in professional settings, and anyone you want to show respect to.
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">ja</span><span class="tag">ty</span><span class="tag">on</span><span class="tag">ona</span><span class="tag">ono</span><span class="tag">my</span><span class="tag">wy</span><span class="tag">oni</span><span class="tag">one</span><span class="tag">pan</span><span class="tag">pani</span>
+</div>
+</div>
+</section>
+
+  </div><!-- end category-content foundations -->
+</div><!-- end category foundations -->
+
+<!-- ===== CATEGORY: CORE VERBS (Ch 3-4) ===== -->
+<div class="category" id="cat-verbs">
+  <div class="category-header" onclick="toggleCategory('cat-verbs')" role="button" tabindex="0" aria-expanded="false">
+    <div class="category-info">
+      <span class="category-icon">&#x1F511;</span>
+      <div>
+        <h2 class="category-title">Core Verbs</h2>
+        <p class="category-desc">Essential verbs: by&#263; &amp; mie&#263;</p>
+      </div>
+    </div>
+    <div class="category-meta">
+      <span class="category-count">2 chapters</span>
+      <span class="category-arrow">&#x25BE;</span>
+    </div>
+  </div>
+  <div class="category-content">
+
+<!-- ===================== CHAPTER 3 ===================== -->
+<section class="chapter" id="ch3">
+<div class="chapter-num">Chapter 3</div>
+<h2>The Verb <em>By&#263;</em> (To Be)</h2>
+
+<p><em>By&#263;</em> is one of the most important Polish verbs. Like in many languages, it is irregular and must be memorized.</p>
+
+<h3>Present Tense Conjugation</h3>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td>ja</td><td class="polish-word">jestem</td><td>I am</td></tr>
+<tr><td>ty</td><td class="polish-word">jeste&#347;</td><td>you are</td></tr>
+<tr><td>on/ona/ono</td><td class="polish-word">jest</td><td>he/she/it is</td></tr>
+<tr><td>my</td><td class="polish-word">jeste&#347;my</td><td>we are</td></tr>
+<tr><td>wy</td><td class="polish-word">jeste&#347;cie</td><td>you (all) are</td></tr>
+<tr><td>oni/one</td><td class="polish-word">s&#261;</td><td>they are</td></tr>
+</table>
+
+<h3>Key Uses</h3>
+<p><strong>1. Saying where you are from:</strong></p>
+<div class="example-box">
+<div class="pl">Jestem z Polski.</div>
+<div class="en">I am from Poland.</div>
+</div>
+<div class="example-box">
+<div class="pl">Sk&#261;d jeste&#347;?</div>
+<div class="en">Where are you from?</div>
+</div>
+
+<p><strong>2. Stating your profession</strong> (with instrumental case &mdash; see Chapter 7):</p>
+<div class="example-box">
+<div class="pl">Jestem lekarzem.</div>
+<div class="en">I am a doctor.</div>
+</div>
+<div class="example-box">
+<div class="pl">Ona jest zm&#281;czon&#261; nauczycielk&#261;.</div>
+<div class="en">She is a tired teacher.</div>
+</div>
+
+<p><strong>3. Describing states:</strong></p>
+<div class="example-box">
+<div class="pl">Nie jestem st&#261;d.</div>
+<div class="en">I'm not from here.</div>
+</div>
+
+<div class="note">
+<strong>Important:</strong> When using <em>by&#263;</em> with professions or descriptions, the noun/adjective goes into the <strong>instrumental case</strong>: lekarz &rarr; lekarz<strong>em</strong>, nauczycielka &rarr; nauczycielk<strong>&#261;</strong>. We cover this in Chapter 7.
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">Jestem z...</span><span class="tag">Sk&#261;d jeste&#347;?</span><span class="tag">To jest...</span><span class="tag">Nie jestem st&#261;d.</span><span class="tag">On mieszka w...</span><span class="tag">Ona mieszka w...</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 4 ===================== -->
+<section class="chapter" id="ch4">
+<div class="chapter-num">Chapter 4</div>
+<h2>The Verb <em>Mie&#263;</em> (To Have)</h2>
+
+<p><em>Mie&#263;</em> is another essential irregular verb. It is used for possession, age, and many common expressions.</p>
+
+<h3>Present Tense Conjugation</h3>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td>ja</td><td class="polish-word">mam</td><td>I have</td></tr>
+<tr><td>ty</td><td class="polish-word">masz</td><td>you have</td></tr>
+<tr><td>on/ona/ono</td><td class="polish-word">ma</td><td>he/she/it has</td></tr>
+<tr><td>my</td><td class="polish-word">mamy</td><td>we have</td></tr>
+<tr><td>wy</td><td class="polish-word">macie</td><td>you (all) have</td></tr>
+<tr><td>oni/one</td><td class="polish-word">maj&#261;</td><td>they have</td></tr>
+</table>
+
+<h3>Usage Examples</h3>
+<div class="example-box">
+<div class="pl">Mam brata.</div>
+<div class="en">I have a brother.</div>
+</div>
+<div class="example-box">
+<div class="pl">Mam siostr&#281;.</div>
+<div class="en">I have a sister.</div>
+</div>
+<div class="example-box">
+<div class="pl">Mam tat&#281;.</div>
+<div class="en">I have a dad.</div>
+</div>
+<div class="example-box">
+<div class="pl">Mam dziadka.</div>
+<div class="en">I have a grandfather.</div>
+</div>
+
+<div class="note">
+<strong>Notice:</strong> The object of <em>mie&#263;</em> takes the <strong>accusative case</strong>. That is why we say <em>siostr<strong>&#281;</strong></em> (not <em>siostra</em>) and <em>tat<strong>&#281;</strong></em> (not <em>tata</em>). See Chapter 7 for details.
+</div>
+
+<h3>Common Expressions with <em>mie&#263;</em></h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">Ile masz lat?</td><td>How old are you? (lit. "How many years do you have?")</td></tr>
+<tr><td class="polish-word">mie&#263; czas</td><td>to have time</td></tr>
+<tr><td class="polish-word">mie&#263; wolne</td><td>to have time off</td></tr>
+<tr><td class="polish-word">mie&#263; kaszel</td><td>to have a cough</td></tr>
+<tr><td class="polish-word">mie&#263; md&#322;o&#347;ci</td><td>to feel sick</td></tr>
+</table>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">Mam brata.</span><span class="tag">Mam siostr&#281;.</span><span class="tag">Mam tat&#281;.</span><span class="tag">Mam dziadka.</span><span class="tag">my mamy</span><span class="tag">wy macie</span><span class="tag">Ile masz lat?</span><span class="tag">mie&#263; czas</span><span class="tag">mie&#263; wolne</span>
+</div>
+</div>
+</section>
+
+  </div><!-- end category-content verbs -->
+</div><!-- end category verbs -->
+
+<!-- ===== CATEGORY: NOUNS & ADJECTIVES (Ch 5-7) ===== -->
+<div class="category" id="cat-nouns">
+  <div class="category-header" onclick="toggleCategory('cat-nouns')" role="button" tabindex="0" aria-expanded="false">
+    <div class="category-info">
+      <span class="category-icon">&#x1F4DD;</span>
+      <div>
+        <h2 class="category-title">Nouns &amp; Adjectives</h2>
+        <p class="category-desc">Gender, agreement &amp; noun cases</p>
+      </div>
+    </div>
+    <div class="category-meta">
+      <span class="category-count">3 chapters</span>
+      <span class="category-arrow">&#x25BE;</span>
+    </div>
+  </div>
+  <div class="category-content">
+
+<!-- ===================== CHAPTER 5 ===================== -->
+<section class="chapter" id="ch5">
+<div class="chapter-num">Chapter 5</div>
+<h2>Noun Gender</h2>
+
+<p>Every Polish noun has a grammatical gender: <strong>masculine</strong>, <strong>feminine</strong>, or <strong>neuter</strong>. Gender affects adjective endings, verb forms, and case endings.</p>
+
+<h3>How to Identify Gender</h3>
+<table>
+<tr><th scope="col">Gender</th><th scope="col">Typical Ending</th><th scope="col">Examples from Your Vocab</th></tr>
+<tr><td><strong>Masculine</strong></td><td>Consonant</td><td><span class="polish-word">brat</span> (brother), <span class="polish-word">syn</span> (son), <span class="polish-word">nos</span> (nose), <span class="polish-word">pies</span> (dog), <span class="polish-word">m&#261;&#380;</span> (husband), <span class="polish-word">stolik</span> (table)</td></tr>
+<tr><td><strong>Feminine</strong></td><td>-a</td><td><span class="polish-word">siostra</span> (sister), <span class="polish-word">lampa</span> (lamp), <span class="polish-word">szko&#322;a</span> (school), <span class="polish-word">r&#281;ka</span> (arm), <span class="polish-word">woda</span> (water), <span class="polish-word">noga</span> (leg)</td></tr>
+<tr><td><strong>Neuter</strong></td><td>-o, -e, -&#281;, -um</td><td><span class="polish-word">dziecko</span> (child), <span class="polish-word">biurko</span> (desk), <span class="polish-word">&#322;&#243;&#380;ko</span> (bed), <span class="polish-word">morze</span> (sea), <span class="polish-word">muzeum</span> (museum)</td></tr>
+</table>
+
+<h3>Exceptions to Watch For</h3>
+<ul>
+<li><strong>Masculine nouns ending in -a:</strong> <span class="polish-word">tata</span> (dad), <span class="polish-word">artysta</span> (artist m.) &mdash; these are masculine despite ending in -a</li>
+<li><strong>Feminine nouns ending in a consonant:</strong> Some feminine nouns end in a soft consonant: <em>d&#322;o&#324;</em> (hand/palm) is feminine</li>
+<li><strong>Foreign words ending in -um:</strong> <span class="polish-word">muzeum</span>, <span class="polish-word">akwarium</span> &mdash; these are neuter</li>
+</ul>
+
+<h3>Why Gender Matters</h3>
+<p>Gender determines how adjectives, demonstratives, and verbs agree with the noun:</p>
+<div class="example-box">
+<div class="pl">m&#322;ody brat (masc.) &bull; m&#322;oda siostra (fem.) &bull; m&#322;ode dziecko (neut.)</div>
+<div class="en">young brother &bull; young sister &bull; young child</div>
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary &mdash; By Gender</div>
+<div class="tags">
+<span class="tag">M: brat</span><span class="tag">M: syn</span><span class="tag">M: m&#261;&#380;</span><span class="tag">M: nos</span><span class="tag">M: pies</span>
+<span class="tag">F: siostra</span><span class="tag">F: lampa</span><span class="tag">F: szko&#322;a</span><span class="tag">F: r&#281;ka</span><span class="tag">F: babcia</span>
+<span class="tag">N: dziecko</span><span class="tag">N: biurko</span><span class="tag">N: &#322;&#243;&#380;ko</span><span class="tag">N: morze</span><span class="tag">N: muzeum</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 6 ===================== -->
+<section class="chapter" id="ch6">
+<div class="chapter-num">Chapter 6</div>
+<h2>Adjective Agreement</h2>
+
+<p>Polish adjectives <strong>must agree</strong> with the noun they describe in gender, number, and case. In the nominative (basic) form:</p>
+
+<h3>Singular Adjective Endings</h3>
+<table>
+<tr><th scope="col">Gender</th><th scope="col">Ending</th><th scope="col">Example</th></tr>
+<tr><td>Masculine</td><td><strong>-y</strong> / <strong>-i</strong> (after k, g)</td><td><span class="polish-word">chory</span> (sick), <span class="polish-word">mi&#281;kki</span> (soft)</td></tr>
+<tr><td>Feminine</td><td><strong>-a</strong></td><td><span class="polish-word">chora</span> (sick), <span class="polish-word">mi&#281;kka</span> (soft)</td></tr>
+<tr><td>Neuter</td><td><strong>-e</strong></td><td><span class="polish-word">chore</span> (sick), <span class="polish-word">mi&#281;kkie</span> (soft)</td></tr>
+</table>
+
+<h3>Your Adjective Pairs (Masculine / Feminine)</h3>
+<table>
+<tr><th scope="col">Masculine</th><th scope="col">Feminine</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">chory</td><td class="polish-word">chora</td><td>sick</td></tr>
+<tr><td class="polish-word">cierpliwy</td><td class="polish-word">cierpliwa</td><td>patient</td></tr>
+<tr><td class="polish-word">dojrza&#322;y</td><td class="polish-word">dojrza&#322;a</td><td>mature / ripe</td></tr>
+<tr><td class="polish-word">md&#322;y</td><td class="polish-word">md&#322;a</td><td>bland</td></tr>
+<tr><td class="polish-word">mi&#281;kki</td><td class="polish-word">mi&#281;kka</td><td>soft</td></tr>
+<tr><td class="polish-word">pracowity</td><td class="polish-word">pracowita</td><td>hard-working</td></tr>
+<tr><td class="polish-word">s&#322;odki</td><td class="polish-word">s&#322;odka</td><td>sweet</td></tr>
+<tr><td class="polish-word">surowy</td><td class="polish-word">surowa</td><td>raw</td></tr>
+<tr><td class="polish-word">twardy</td><td class="polish-word">twarda</td><td>hard</td></tr>
+<tr><td class="polish-word">zm&#281;czony</td><td class="polish-word">zm&#281;czona</td><td>tired</td></tr>
+<tr><td class="polish-word">&#380;onaty</td><td class="polish-word">zam&#281;&#380;na</td><td>married</td></tr>
+<tr><td class="polish-word">nie&#380;onaty</td><td class="polish-word">niezam&#281;&#380;na</td><td>single</td></tr>
+<tr><td class="polish-word">zar&#281;czony</td><td class="polish-word">zar&#281;czona</td><td>engaged</td></tr>
+<tr><td class="polish-word">wysportowany</td><td class="polish-word">wysportowana</td><td>sporty</td></tr>
+<tr><td class="polish-word">zaj&#281;ty</td><td class="polish-word">zaj&#281;ta</td><td>busy</td></tr>
+</table>
+
+<div class="note">
+<strong>Special case &mdash; &#380;onaty vs. zam&#281;&#380;na:</strong> "Married" uses completely different words depending on gender. <em>&#379;onaty</em> literally means "having a wife" (for a man), while <em>zam&#281;&#380;na</em> means "having a husband" (for a woman). Similarly, <em>nie&#380;onaty / niezam&#281;&#380;na</em> for "single."
+</div>
+
+<h3>Adjective Position</h3>
+<p>Adjectives usually come <strong>before</strong> the noun, just like in English:</p>
+<div class="example-box">
+<div class="pl">Ona jest zm&#281;czon&#261; nauczycielk&#261;.</div>
+<div class="en">She is a tired teacher.</div>
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">More Adjectives from Your Vocab</div>
+<div class="tags">
+<span class="tag">agresywny</span><span class="tag">bia&#322;y</span><span class="tag">cierpliwy</span><span class="tag">d&#322;ugi</span><span class="tag">m&#322;ody</span><span class="tag">niecierpliwy</span><span class="tag">nie&#347;mia&#322;y</span><span class="tag">nudny</span><span class="tag">odwa&#380;ny</span><span class="tag">pi&#281;kny</span><span class="tag">przystojny</span><span class="tag">szczery</span><span class="tag">uprzejmy</span><span class="tag">zabawny</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 7 ===================== -->
+<section class="chapter" id="ch7">
+<div class="chapter-num">Chapter 7</div>
+<h2>Noun Cases &mdash; Introduction</h2>
+
+<p>Polish has <strong>7 grammatical cases</strong>. At A1-A2 level, you encounter four of them most frequently. Cases change the ending of nouns (and adjectives) depending on their role in the sentence.</p>
+
+<h3>1. Nominative (Mianownik) &mdash; The Basic Form</h3>
+<p>Used for the <strong>subject</strong> of a sentence. This is the form you find in the dictionary.</p>
+<div class="example-box">
+<div class="pl"><strong>Brat</strong> jest w domu.</div>
+<div class="en">The brother is at home.</div>
+</div>
+
+<h3>2. Instrumental (Narz&#281;dnik) &mdash; With <em>by&#263;</em></h3>
+<p>Used after the verb <em>by&#263;</em> (to be) when stating professions or descriptions.</p>
+<table>
+<tr><th scope="col">Gender</th><th scope="col">Nominative</th><th scope="col">Instrumental</th><th scope="col">Ending Change</th></tr>
+<tr><td>Masculine</td><td>lekarz</td><td class="polish-word">lekarzem</td><td>+ <strong>-em</strong></td></tr>
+<tr><td>Feminine (-a)</td><td>nauczycielka</td><td class="polish-word">nauczycielk&#261;</td><td>-a &rarr; <strong>-&#261;</strong></td></tr>
+<tr><td>Neuter (-o)</td><td>dziecko</td><td class="polish-word">dzieckiem</td><td>-o &rarr; <strong>-iem</strong></td></tr>
+</table>
+<div class="example-box">
+<div class="pl">Jestem <strong>lekarzem</strong>.</div>
+<div class="en">I am a doctor.</div>
+</div>
+<div class="example-box">
+<div class="pl">Ona jest zm&#281;czon<strong>&#261;</strong> nauczycielk<strong>&#261;</strong>.</div>
+<div class="en">She is a tired teacher.</div>
+</div>
+
+<h3>3. Accusative (Biernik) &mdash; With <em>mie&#263;</em> and Direct Objects</h3>
+<p>Used for the <strong>direct object</strong> of most verbs, including <em>mie&#263;</em>.</p>
+<table>
+<tr><th scope="col">Gender</th><th scope="col">Nominative</th><th scope="col">Accusative</th><th scope="col">Rule</th></tr>
+<tr><td>Masc. (animate)</td><td>brat</td><td class="polish-word">brata</td><td>= genitive form</td></tr>
+<tr><td>Masc. (inanimate)</td><td>stolik</td><td class="polish-word">stolik</td><td>no change</td></tr>
+<tr><td>Feminine (-a)</td><td>siostra</td><td class="polish-word">siostr&#281;</td><td>-a &rarr; <strong>-&#281;</strong></td></tr>
+<tr><td>Neuter</td><td>dziecko</td><td class="polish-word">dziecko</td><td>no change</td></tr>
+</table>
+<div class="example-box">
+<div class="pl">Mam <strong>brata</strong>.</div>
+<div class="en">I have a brother. (brat &rarr; brata)</div>
+</div>
+<div class="example-box">
+<div class="pl">Mam <strong>siostr&#281;</strong>.</div>
+<div class="en">I have a sister. (siostra &rarr; siostr&#281;)</div>
+</div>
+
+<h3>4. Locative (Miejscownik) &mdash; With <em>w</em> (in/at)</h3>
+<p>Used after prepositions like <em>w</em> (in), <em>na</em> (on/at), <em>o</em> (about).</p>
+<table>
+<tr><th scope="col">Nominative</th><th scope="col">Locative (w + ...)</th><th scope="col">English</th></tr>
+<tr><td>dom</td><td class="polish-word">w domu</td><td>at home</td></tr>
+<tr><td>miasto</td><td class="polish-word">w mie&#347;cie</td><td>in the city</td></tr>
+<tr><td>szko&#322;a</td><td class="polish-word">w szkole</td><td>in school</td></tr>
+<tr><td>szpital</td><td class="polish-word">w szpitalu</td><td>in hospital</td></tr>
+<tr><td>restauracja</td><td class="polish-word">w restauracji</td><td>in a restaurant</td></tr>
+<tr><td>mieszkanie</td><td class="polish-word">w mieszkaniu</td><td>in a flat</td></tr>
+</table>
+
+<div class="note">
+<strong>Don't panic!</strong> You do not need to memorize all case endings at once. Focus on recognizing patterns: feminine nouns ending in -a change to -&#281; (accusative) and -e/-i (locative). With practice, these will become natural.
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary &mdash; Locative Phrases</div>
+<div class="tags">
+<span class="tag">w domu</span><span class="tag">w mie&#347;cie</span><span class="tag">w szkole</span><span class="tag">w szpitalu</span><span class="tag">w restauracji</span><span class="tag">w mieszkaniu</span><span class="tag">w supermarkecie</span>
+</div>
+</div>
+</section>
+
+  </div><!-- end category-content nouns -->
+</div><!-- end category nouns -->
+
+<!-- ===== CATEGORY: VERB TENSES (Ch 8-11) ===== -->
+<div class="category" id="cat-tenses">
+  <div class="category-header" onclick="toggleCategory('cat-tenses')" role="button" tabindex="0" aria-expanded="false">
+    <div class="category-info">
+      <span class="category-icon">&#x23F0;</span>
+      <div>
+        <h2 class="category-title">Verb Tenses</h2>
+        <p class="category-desc">Present, past &amp; future</p>
+      </div>
+    </div>
+    <div class="category-meta">
+      <span class="category-count">4 chapters</span>
+      <span class="category-arrow">&#x25BE;</span>
+    </div>
+  </div>
+  <div class="category-content">
+
+<!-- ===================== CHAPTER 8 ===================== -->
+<section class="chapter" id="ch8">
+<div class="chapter-num">Chapter 8</div>
+<h2>Present Tense Verbs</h2>
+
+<p>Polish verbs in the present tense follow predictable conjugation patterns based on their infinitive endings.</p>
+
+<h3>Conjugation Group 1: -a&#263; Verbs</h3>
+<p>Most -a&#263; verbs follow the -am, -asz pattern:</p>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">czyta&#263; (to read)</th><th scope="col">gra&#263; (to play)</th></tr>
+<tr><td>ja</td><td class="polish-word">czytam</td><td class="polish-word">gram</td></tr>
+<tr><td>ty</td><td class="polish-word">czytasz</td><td class="polish-word">grasz</td></tr>
+<tr><td>on/ona</td><td class="polish-word">czyta</td><td class="polish-word">gra</td></tr>
+<tr><td>my</td><td class="polish-word">czytamy</td><td class="polish-word">gramy</td></tr>
+<tr><td>wy</td><td class="polish-word">czytacie</td><td class="polish-word">gracie</td></tr>
+<tr><td>oni/one</td><td class="polish-word">czytaj&#261;</td><td class="polish-word">graj&#261;</td></tr>
+</table>
+
+<p>Other -a&#263; verbs from your vocabulary that follow this pattern:</p>
+<div class="vocab-box">
+<div class="vocab-box-title">-a&#263; Verbs You Know</div>
+<div class="tags">
+<span class="tag">pisa&#263; (write)</span><span class="tag">pyta&#263; (ask)</span><span class="tag">biega&#263; (run)</span><span class="tag">chrapa&#263; (snore)</span><span class="tag">skaka&#263; (jump)</span><span class="tag">p&#322;aka&#263; (cry)</span><span class="tag">p&#322;ywa&#263; (swim)</span><span class="tag">kopa&#263; (kick)</span>
+</div>
+</div>
+
+<h3>Conjugation Group 2: -i&#263; / -y&#263; Verbs</h3>
+<p>These verbs follow the -&#281;, -isz/-ysz pattern:</p>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">m&oacute;wi&#263; (to speak)</th><th scope="col">robi&#263; (to do)</th></tr>
+<tr><td>ja</td><td class="polish-word">m&oacute;wi&#281;</td><td class="polish-word">robi&#281;</td></tr>
+<tr><td>ty</td><td class="polish-word">m&oacute;wisz</td><td class="polish-word">robisz</td></tr>
+<tr><td>on/ona</td><td class="polish-word">m&oacute;wi</td><td class="polish-word">robi</td></tr>
+<tr><td>my</td><td class="polish-word">m&oacute;wimy</td><td class="polish-word">robimy</td></tr>
+<tr><td>wy</td><td class="polish-word">m&oacute;wicie</td><td class="polish-word">robicie</td></tr>
+<tr><td>oni/one</td><td class="polish-word">m&oacute;wi&#261;</td><td class="polish-word">robi&#261;</td></tr>
+</table>
+
+<h3>Conjugation Group 3: -e&#263; Verbs</h3>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">le&#380;e&#263; (to lie down)</th></tr>
+<tr><td>ja</td><td class="polish-word">le&#380;&#281;</td></tr>
+<tr><td>ty</td><td class="polish-word">le&#380;ysz</td></tr>
+<tr><td>on/ona</td><td class="polish-word">le&#380;y</td></tr>
+<tr><td>my</td><td class="polish-word">le&#380;ymy</td></tr>
+<tr><td>wy</td><td class="polish-word">le&#380;ycie</td></tr>
+<tr><td>oni/one</td><td class="polish-word">le&#380;&#261;</td></tr>
+</table>
+
+<h3>Reflexive Verbs: <em>si&#281;</em></h3>
+<p>Some verbs require the reflexive particle <em>si&#281;</em>:</p>
+<div class="example-box">
+<div class="pl">Ucz&#281; <strong>si&#281;</strong> polskiego.</div>
+<div class="en">I am learning Polish. (uczy&#263; si&#281; = to learn)</div>
+</div>
+<div class="example-box">
+<div class="pl">U&#347;miecha <strong>si&#281;</strong>.</div>
+<div class="en">He/She is smiling. (u&#347;miecha&#263; si&#281; = to smile)</div>
+</div>
+
+<h3>Common Questions with Present Tense</h3>
+<div class="example-box">
+<div class="pl">Co lubisz robi&#263;?</div>
+<div class="en">What do you like to do?</div>
+</div>
+<div class="example-box">
+<div class="pl">Czym si&#281; zajmujesz?</div>
+<div class="en">What do you do (for work)?</div>
+</div>
+
+<div class="note">
+<strong>Tip:</strong> In casual Polish, the subject pronoun is often <strong>dropped</strong> because the verb ending already tells you who is doing the action. <em>Czytam</em> already means "I read" &mdash; you do not need to say <em>Ja czytam</em> unless you want to emphasize "I."
+</div>
+</section>
+
+<!-- ===================== CHAPTER 9 ===================== -->
+<section class="chapter" id="ch9">
+<div class="chapter-num">Chapter 9</div>
+<h2>Past Tense (Czas przesz&#322;y)</h2>
+
+<p>The Polish past tense is unique: verb endings change based on <strong>both the subject pronoun and the subject's gender</strong>.</p>
+
+<h3>Formation</h3>
+<p>Take the verb stem, add the past tense marker <strong>-&#322;-</strong>, then add gender/person endings:</p>
+
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">Masculine</th><th scope="col">Feminine</th></tr>
+<tr><td>ja</td><td class="polish-word">-&#322;em</td><td class="polish-word">-&#322;am</td></tr>
+<tr><td>ty</td><td class="polish-word">-&#322;e&#347;</td><td class="polish-word">-&#322;a&#347;</td></tr>
+<tr><td>on</td><td class="polish-word">-&#322;</td><td>&mdash;</td></tr>
+<tr><td>ona</td><td>&mdash;</td><td class="polish-word">-&#322;a</td></tr>
+<tr><td>my</td><td class="polish-word">-li&#347;my</td><td class="polish-word">-&#322;y&#347;my</td></tr>
+<tr><td>wy</td><td class="polish-word">-li&#347;cie</td><td class="polish-word">-&#322;y&#347;cie</td></tr>
+<tr><td>oni</td><td class="polish-word">-li</td><td>&mdash;</td></tr>
+<tr><td>one</td><td>&mdash;</td><td class="polish-word">-&#322;y</td></tr>
+</table>
+
+<h3>Example: <em>mieszka&#263;</em> (to live)</h3>
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">Masculine</th><th scope="col">Feminine</th></tr>
+<tr><td>ja</td><td class="polish-word">mieszka&#322;em</td><td class="polish-word">mieszka&#322;am</td></tr>
+<tr><td>ty</td><td class="polish-word">mieszka&#322;e&#347;</td><td class="polish-word">mieszka&#322;a&#347;</td></tr>
+<tr><td>on / ona</td><td class="polish-word">mieszka&#322;</td><td class="polish-word">mieszka&#322;a</td></tr>
+</table>
+
+<h3>Examples from Your Sentences</h3>
+<div class="example-box">
+<div class="pl">Mieszka&#322;em we Francji przez dwa lata.</div>
+<div class="en">I lived in France for two years. (speaker is male)</div>
+</div>
+<div class="example-box">
+<div class="pl">Ona ta&#324;czy&#322;a w sobot&#281; ca&#322;&#261; noc.</div>
+<div class="en">She danced all night on Saturday.</div>
+</div>
+<div class="example-box">
+<div class="pl">On szed&#322; do pracy pieszo w zesz&#322;y weekend.</div>
+<div class="en">He walked to work last weekend.</div>
+</div>
+<div class="example-box">
+<div class="pl">Otworzy<strong>li&#347;my</strong> drzwi o 8:00.</div>
+<div class="en">We opened the doors at 8 o'clock. (mixed/male group)</div>
+</div>
+<div class="example-box">
+<div class="pl">Oni zaparkowali na ulicy.</div>
+<div class="en">They parked in the street.</div>
+</div>
+<div class="example-box">
+<div class="pl">Odwiedzi&#322;e&#347; swoich kuzyn&oacute;w w ostatnie Bo&#380;e Narodzenie.</div>
+<div class="en">You visited your cousins last Christmas. (male "you")</div>
+</div>
+
+<div class="note">
+<strong>Key insight:</strong> The past tense ending reveals the speaker's gender! If a woman says "I lived," she says <em>mieszka<strong>&#322;am</strong></em>. A man says <em>mieszka<strong>&#322;em</strong></em>. This is unlike English, where past tense forms are gender-neutral.
+</div>
+</section>
+
+<!-- ===================== CHAPTER 10 ===================== -->
+<section class="chapter" id="ch10">
+<div class="chapter-num">Chapter 10</div>
+<h2>Past Continuous (Imperfective Past)</h2>
+
+<p>Polish does not have a separate continuous tense like English. Instead, the <strong>imperfective aspect</strong> of the past tense expresses ongoing or repeated actions in the past &mdash; similar to English "was doing."</p>
+
+<h3>Formation</h3>
+<p>Simply use the past tense of an <strong>imperfective</strong> verb. Most basic verbs (czyta&#263;, ogl&#261;da&#263;, robi&#263;, pi&#263;, s&#322;ucha&#263;) are already imperfective.</p>
+
+<div class="example-box">
+<div class="pl">Wczoraj ogl&#261;da&#322;em zdj&#281;cia.</div>
+<div class="en">I was looking at the photos yesterday.</div>
+</div>
+<div class="example-box">
+<div class="pl">My pi&#322;y&#347;my kaw&#281; w barze.</div>
+<div class="en">We were having coffee in the bar. (all-female group)</div>
+</div>
+
+<h3>Negation in the Past Continuous</h3>
+<p>Place <em>nie</em> before the verb. Notice the case change after negation (accusative &rarr; genitive):</p>
+<div class="example-box">
+<div class="pl">Wczoraj <strong>nie</strong> ogl&#261;da&#322;em zdj&#281;&#263;.</div>
+<div class="en">I wasn't looking at the photos yesterday.</div>
+</div>
+<div class="example-box">
+<div class="pl">My <strong>nie</strong> pili&#347;my kawy w barze.</div>
+<div class="en">We weren't having coffee in the bar.</div>
+</div>
+
+<div class="note">
+<strong>Notice the case change!</strong><br>
+Affirmative: ogl&#261;da&#322;em <strong>zdj&#281;cia</strong> (accusative)<br>
+Negative: nie ogl&#261;da&#322;em <strong>zdj&#281;&#263;</strong> (genitive)<br><br>
+Affirmative: pi&#322;y&#347;my <strong>kaw&#281;</strong> (accusative)<br>
+Negative: nie pili&#347;my <strong>kawy</strong> (genitive)<br><br>
+After negation, Polish switches the direct object to the <strong>genitive case</strong>. This is a key rule!
+</div>
+
+<h3>Simultaneous Actions &mdash; "While" / "At the same time"</h3>
+<div class="example-box">
+<div class="pl">Rozmawia&#322;a&#347; z Markiem przez telefon <strong>kiedy</strong> my ogl&#261;dali&#347;my film.</div>
+<div class="en">You were talking to Marc on the phone while we were watching the film.</div>
+</div>
+<div class="example-box">
+<div class="pl">On <strong>jednocze&#347;nie</strong> czyta&#322; ksi&#261;&#380;k&#281; i ogl&#261;da&#322; telewizj&#281;.</div>
+<div class="en">He was reading the book and watching TV at the same time.</div>
+</div>
+<div class="example-box">
+<div class="pl">One wszystkie m&oacute;wi&#322;y jednocze&#347;nie.</div>
+<div class="en">They (f.) were all speaking at the same time.</div>
+</div>
+<div class="example-box">
+<div class="pl">Oni nie m&oacute;wili wszyscy jednocze&#347;nie.</div>
+<div class="en">They (m.) weren't all speaking at the same time.</div>
+</div>
+
+<h3>Questions in the Past Continuous</h3>
+<p>Add <em>Czy</em> at the beginning:</p>
+<div class="example-box">
+<div class="pl">Czy ona robi&#322;a makija&#380;?</div>
+<div class="en">Was she putting on make-up?</div>
+</div>
+<div class="example-box">
+<div class="pl">Czy wy rozmawialiście z Mari&#261;?</div>
+<div class="en">Were you talking to Maria?</div>
+</div>
+<div class="example-box">
+<div class="pl">Czy wy s&#322;uchali&#347;cie wczoraj muzyki?</div>
+<div class="en">Were you listening to music yesterday?</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 11 ===================== -->
+<section class="chapter" id="ch11">
+<div class="chapter-num">Chapter 11</div>
+<h2>Future Tense (Czas przysz&#322;y)</h2>
+
+<p>Polish has two ways to express the future, depending on whether the verb is <strong>perfective</strong> or <strong>imperfective</strong>.</p>
+
+<h3>Method 1: Perfective Verbs (Simple Future)</h3>
+<p>Perfective verbs express completed future actions. They are conjugated in the present tense forms, but the meaning is future:</p>
+
+<div class="example-box">
+<div class="pl">Ja p&oacute;jd&#281; na spacer.</div>
+<div class="en">I will go for a walk.</div>
+</div>
+<div class="example-box">
+<div class="pl">On kupi gazet&#281; po po&#322;udniu.</div>
+<div class="en">He will buy a newspaper this afternoon.</div>
+</div>
+<div class="example-box">
+<div class="pl">Oni zadzwoni&#261; do rodzic&oacute;w po szkole.</div>
+<div class="en">They will call their parents after school.</div>
+</div>
+<div class="example-box">
+<div class="pl">P&oacute;jdziecie dzisiaj wieczorem do kina.</div>
+<div class="en">You will go to the cinema tonight.</div>
+</div>
+<div class="example-box">
+<div class="pl">Porozmawiamy o tym p&oacute;&#378;niej.</div>
+<div class="en">We will talk about this later.</div>
+</div>
+
+<h3>Method 2: <em>b&#281;d&#281;</em> + Infinitive (Imperfective Future)</h3>
+<p>For ongoing or repeated future actions, use <em>b&#281;d&#281;</em> (I will be) + infinitive or past participle:</p>
+
+<table>
+<tr><th scope="col">Pronoun</th><th scope="col">b&#281;d&#281; form</th></tr>
+<tr><td>ja</td><td class="polish-word">b&#281;d&#281;</td></tr>
+<tr><td>ty</td><td class="polish-word">b&#281;dziesz</td></tr>
+<tr><td>on/ona</td><td class="polish-word">b&#281;dzie</td></tr>
+<tr><td>my</td><td class="polish-word">b&#281;dziemy</td></tr>
+<tr><td>wy</td><td class="polish-word">b&#281;dziecie</td></tr>
+<tr><td>oni/one</td><td class="polish-word">b&#281;d&#261;</td></tr>
+</table>
+
+<div class="example-box">
+<div class="pl">Ty <strong>b&#281;dziesz mia&#322;</strong> pizz&#281; na lunch.</div>
+<div class="en">You will have pizza for lunch.</div>
+</div>
+<div class="example-box">
+<div class="pl">Czy <strong>b&#281;dziecie grali</strong> w golfa w ten weekend?</div>
+<div class="en">Will you play golf this weekend?</div>
+</div>
+
+<h3>Negation in the Future</h3>
+<div class="example-box">
+<div class="pl">Ja <strong>nie</strong> p&oacute;jd&#281; na spacer.</div>
+<div class="en">I won't go for a walk.</div>
+</div>
+<div class="example-box">
+<div class="pl">One <strong>nie</strong> p&oacute;jd&#261; do pracy w sobot&#281;.</div>
+<div class="en">They (f.) won't go to work on Saturday.</div>
+</div>
+<div class="example-box">
+<div class="pl">Wy <strong>nie b&#281;dziecie grali</strong> w golfa w ten weekend.</div>
+<div class="en">You won't play golf this weekend.</div>
+</div>
+
+<h3>Conditional Sentences with Future</h3>
+<div class="example-box">
+<div class="pl">Ona przyjdzie <strong>je&#347;li</strong> b&#281;dzie zaproszona.</div>
+<div class="en">She will come if she is invited.</div>
+</div>
+<div class="example-box">
+<div class="pl">Oni powiedz&#261; Annie <strong>kiedy</strong> ona przyjedzie.</div>
+<div class="en">They will tell Anna when she arrives.</div>
+</div>
+
+<div class="note">
+<strong>Perfective vs. Imperfective summary:</strong><br>
+<em>P&oacute;jd&#281;</em> (perfective) = I will go (once, completed action)<br>
+<em>B&#281;d&#281; chodzi&#263;</em> (imperfective) = I will be going (repeatedly, ongoing)<br>
+At A2 level, focus on recognizing which form is being used rather than producing them perfectly.
+</div>
+</section>
+
+  </div><!-- end category-content tenses -->
+</div><!-- end category tenses -->
+
+<!-- ===== CATEGORY: SENTENCE BUILDING (Ch 12-18) ===== -->
+<div class="category" id="cat-sentences">
+  <div class="category-header" onclick="toggleCategory('cat-sentences')" role="button" tabindex="0" aria-expanded="false">
+    <div class="category-info">
+      <span class="category-icon">&#x1F5E3;&#xFE0F;</span>
+      <div>
+        <h2 class="category-title">Sentence Building</h2>
+        <p class="category-desc">Negation, questions, expressions &amp; vocabulary</p>
+      </div>
+    </div>
+    <div class="category-meta">
+      <span class="category-count">7 chapters</span>
+      <span class="category-arrow">&#x25BE;</span>
+    </div>
+  </div>
+  <div class="category-content">
+
+<!-- ===================== CHAPTER 12 ===================== -->
+<section class="chapter" id="ch12">
+<div class="chapter-num">Chapter 12</div>
+<h2>Negation</h2>
+
+<p>Polish negation is straightforward: place <strong>nie</strong> directly before the verb. However, there are important grammatical consequences.</p>
+
+<h3>Basic Negation</h3>
+<div class="example-box">
+<div class="pl"><strong>Nie</strong> rozumiem.</div>
+<div class="en">I don't understand.</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>Nie</strong> jestem st&#261;d.</div>
+<div class="en">I'm not from here.</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>Nie</strong> mo&#380;esz.</div>
+<div class="en">You can't.</div>
+</div>
+
+<h3>Genitive After Negation</h3>
+<p>This is one of the most important rules in Polish grammar: when you negate a verb that normally takes a <strong>direct object (accusative)</strong>, that object switches to the <strong>genitive case</strong>.</p>
+
+<table>
+<tr><th scope="col">Affirmative (Accusative)</th><th scope="col">Negative (Genitive)</th></tr>
+<tr><td>Ogl&#261;da&#322;em <strong>zdj&#281;cia</strong></td><td>Nie ogl&#261;da&#322;em <strong>zdj&#281;&#263;</strong></td></tr>
+<tr><td>Pi&#322;y&#347;my <strong>kaw&#281;</strong></td><td>Nie pili&#347;my <strong>kawy</strong></td></tr>
+<tr><td>Robi&#322;a <strong>makija&#380;</strong></td><td>Nie robi&#322;a <strong>makija&#380;u</strong></td></tr>
+</table>
+
+<div class="example-box">
+<div class="pl">Wczoraj <strong>nie</strong> ogl&#261;da&#322;em <strong>zdj&#281;&#263;</strong>.</div>
+<div class="en">I wasn't looking at the photos yesterday.</div>
+</div>
+<div class="example-box">
+<div class="pl">Ona <strong>nie</strong> robi&#322;a <strong>makija&#380;u</strong> i <strong>nie</strong> suszy&#322;a w&#322;os&oacute;w.</div>
+<div class="en">She wasn't putting on make-up or drying her hair.</div>
+</div>
+
+<h3>Double Negation</h3>
+<p>Unlike English, Polish <strong>requires</strong> double (or multiple) negation. It is grammatically correct and mandatory:</p>
+<div class="example-box">
+<div class="pl"><strong>Nie</strong> ma za co!</div>
+<div class="en">You're welcome! (lit. "There's nothing for what")</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>Nie, nie</strong> ma.</div>
+<div class="en">No, there isn't.</div>
+</div>
+
+<div class="note">
+<strong>Remember:</strong> In Polish, double negation does NOT cancel out (unlike formal English). "Nic nie wiem" (nothing not I-know) = "I don't know anything," NOT "I know something."
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary &mdash; Negation Phrases</div>
+<div class="tags">
+<span class="tag">Nie rozumiem.</span><span class="tag">Nie jestem st&#261;d.</span><span class="tag">nie mo&#380;esz</span><span class="tag">Nie ma za co!</span><span class="tag">Nie, nie ma.</span><span class="tag">Niestety nie wiem.</span><span class="tag">Przykro mi, nie mog&#281;</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 13 ===================== -->
+<section class="chapter" id="ch13">
+<div class="chapter-num">Chapter 13</div>
+<h2>Questions</h2>
+
+<h3>Yes/No Questions with <em>Czy</em></h3>
+<p>The easiest way to form a question in Polish: add <strong>Czy</strong> to the beginning of a statement.</p>
+<div class="example-box">
+<div class="pl"><strong>Czy</strong> m&oacute;wisz po angielsku?</div>
+<div class="en">Do you speak English?</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>Czy</strong> mog&#281;...?</div>
+<div class="en">Can I...?</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>Czy</strong> b&#281;dziecie grali w golfa w ten weekend?</div>
+<div class="en">Will you play golf this weekend?</div>
+</div>
+
+<div class="note">
+<strong>Tip:</strong> In casual speech, <em>Czy</em> is often dropped and replaced by rising intonation alone, just like in English: "M&oacute;wisz po angielsku?"
+</div>
+
+<h3>Question Words</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th><th scope="col">Example</th></tr>
+<tr><td class="polish-word">Co?</td><td>What?</td><td>Co to jest? &mdash; What is this?</td></tr>
+<tr><td class="polish-word">Kto?</td><td>Who?</td><td>Kto to jest? &mdash; Who is this?</td></tr>
+<tr><td class="polish-word">Gdzie?</td><td>Where?</td><td>Gdzie mieszkasz? &mdash; Where do you live?</td></tr>
+<tr><td class="polish-word">Kiedy?</td><td>When?</td><td>Kiedy ona przyjedzie? &mdash; When will she arrive?</td></tr>
+<tr><td class="polish-word">Jak?</td><td>How?</td><td>Jak si&#281; masz? &mdash; How are you?</td></tr>
+<tr><td class="polish-word">Ile?</td><td>How many/much?</td><td>Ile masz lat? &mdash; How old are you?</td></tr>
+<tr><td class="polish-word">Sk&#261;d?</td><td>Where from?</td><td>Sk&#261;d jeste&#347;? &mdash; Where are you from?</td></tr>
+<tr><td class="polish-word">Jaki / Jaka / Jakie?</td><td>What kind?</td><td>Jaki to jest? &mdash; What kind is it?</td></tr>
+<tr><td class="polish-word">Czym?</td><td>With what?</td><td>Czym si&#281; zajmujesz? &mdash; What do you do?</td></tr>
+</table>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary &mdash; Question Phrases</div>
+<div class="tags">
+<span class="tag">Co to jest?</span><span class="tag">Sk&#261;d jeste&#347;?</span><span class="tag">Jak si&#281; masz?</span><span class="tag">Ile masz lat?</span><span class="tag">Czy mog&#281;...?</span><span class="tag">Gdzie mieszkasz?</span><span class="tag">Czym si&#281; zajmujesz?</span><span class="tag">czy masz jakie&#347; pomys&#322;y?</span><span class="tag">czy masz jakie&#347; propozycje?</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 14 ===================== -->
+<section class="chapter" id="ch14">
+<div class="chapter-num">Chapter 14</div>
+<h2>Making Suggestions &amp; Requests</h2>
+
+<p>Polish has several ways to make suggestions, each with a different level of formality and directness.</p>
+
+<h3>Suggestion Expressions</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th><th scope="col">Usage</th></tr>
+<tr><td class="polish-word">Mo&#380;e...?</td><td>Shall...? / How about...?</td><td>Casual suggestion</td></tr>
+<tr><td class="polish-word">A mo&#380;e...?</td><td>And how about...?</td><td>Alternative suggestion</td></tr>
+<tr><td class="polish-word">Co powiesz na...?</td><td>What do you say to...?</td><td>Asking for opinion</td></tr>
+<tr><td class="polish-word">Moglibysmy...</td><td>We could...</td><td>Polite suggestion</td></tr>
+<tr><td class="polish-word">We&#378;my</td><td>Let's...</td><td>Direct suggestion</td></tr>
+<tr><td class="polish-word">Proponuj&#281;...</td><td>I suggest...</td><td>Formal suggestion</td></tr>
+<tr><td class="polish-word">Bardzo bym chcia&#322;...</td><td>I'd love to...</td><td>Expressing desire</td></tr>
+</table>
+
+<h3>Asking for Permission &amp; Preferences</h3>
+<div class="example-box">
+<div class="pl">Czy masz ochot&#281;...?</div>
+<div class="en">Do you fancy...? / Do you feel like...?</div>
+</div>
+<div class="example-box">
+<div class="pl">Czy masz co&#347; przeciwko...?</div>
+<div class="en">Do you mind if...?</div>
+</div>
+<div class="example-box">
+<div class="pl">Czy mog&#281;...?</div>
+<div class="en">Can I...? / May I...?</div>
+</div>
+
+<h3>Responding</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">Pewnie.</td><td>Sure, go ahead.</td></tr>
+<tr><td class="polish-word">Oczywi&#347;cie.</td><td>Of course.</td></tr>
+<tr><td class="polish-word">mo&#380;esz</td><td>you may / you can</td></tr>
+<tr><td class="polish-word">nie mo&#380;esz</td><td>you can't</td></tr>
+<tr><td class="polish-word">Przykro mi, nie mog&#281;</td><td>Sorry, I can't</td></tr>
+</table>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">Mo&#380;e...?</span><span class="tag">a mo&#380;e...</span><span class="tag">co powiesz na...</span><span class="tag">mogliby&#347;my...</span><span class="tag">We&#378;my</span><span class="tag">Proponuj&#281;...</span><span class="tag">Pewnie.</span><span class="tag">Oczywi&#347;cie</span><span class="tag">Czy masz ochot&#281;...?</span><span class="tag">Czy masz co&#347; przeciwko...</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 15 ===================== -->
+<section class="chapter" id="ch15">
+<div class="chapter-num">Chapter 15</div>
+<h2>Numbers &amp; Age</h2>
+
+<h3>Cardinal Numbers 0&ndash;20</h3>
+<table>
+<tr><th scope="col">#</th><th scope="col">Polish</th><th scope="col">#</th><th scope="col">Polish</th></tr>
+<tr><td>0</td><td class="polish-word">zero</td><td>11</td><td class="polish-word">jedena&#347;cie</td></tr>
+<tr><td>1</td><td class="polish-word">jeden / jedna / jedno</td><td>12</td><td class="polish-word">dwana&#347;cie</td></tr>
+<tr><td>2</td><td class="polish-word">dwa / dwie</td><td>13</td><td class="polish-word">trzyna&#347;cie</td></tr>
+<tr><td>3</td><td class="polish-word">trzy</td><td>14</td><td class="polish-word">czterna&#347;cie</td></tr>
+<tr><td>4</td><td class="polish-word">cztery</td><td>15</td><td class="polish-word">pi&#281;tna&#347;cie</td></tr>
+<tr><td>5</td><td class="polish-word">pi&#281;&#263;</td><td>16</td><td class="polish-word">szesna&#347;cie</td></tr>
+<tr><td>6</td><td class="polish-word">sze&#347;&#263;</td><td>17</td><td class="polish-word">siedemna&#347;cie</td></tr>
+<tr><td>7</td><td class="polish-word">siedem</td><td>18</td><td class="polish-word">osiemna&#347;cie</td></tr>
+<tr><td>8</td><td class="polish-word">osiem</td><td>19</td><td class="polish-word">dziewi&#281;tna&#347;cie</td></tr>
+<tr><td>9</td><td class="polish-word">dziewi&#281;&#263;</td><td>20</td><td class="polish-word">dwadzie&#347;cia</td></tr>
+<tr><td>10</td><td class="polish-word">dziesi&#281;&#263;</td><td></td><td></td></tr>
+</table>
+
+<h3>Expressing Age</h3>
+<p>In Polish, age is expressed with <em>mie&#263;</em> (to have) + number + <em>lat/lata/rok</em>:</p>
+
+<div class="example-box">
+<div class="pl">Ile masz lat?</div>
+<div class="en">How old are you? (lit. "How many years do you have?")</div>
+</div>
+
+<table>
+<tr><th scope="col">Age</th><th scope="col">Polish</th><th scope="col">Rule</th></tr>
+<tr><td>1 year</td><td class="polish-word">Mam jeden <strong>rok</strong></td><td>rok (singular)</td></tr>
+<tr><td>2&ndash;4 years</td><td class="polish-word">Mam dwa/trzy/cztery <strong>lata</strong></td><td>lata (2-4)</td></tr>
+<tr><td>5&ndash;21 years</td><td class="polish-word">Mam pi&#281;&#263;/dziesi&#281;&#263;/dwadzie&#347;cia jeden <strong>lat</strong></td><td>lat (5+)</td></tr>
+<tr><td>22&ndash;24 years</td><td class="polish-word">Mam dwadzie&#347;cia dwa <strong>lata</strong></td><td>lata (ends in 2-4)</td></tr>
+</table>
+
+<div class="note">
+<strong>The "lat/lata/rok" pattern</strong> follows the same logic as other Polish counting nouns. The ending depends on the last digit: 1 &rarr; rok, 2-4 &rarr; lata, 5-21 &rarr; lat, then it cycles again (22-24 &rarr; lata, 25-31 &rarr; lat...).
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">zero</span><span class="tag">trzy</span><span class="tag">cztery</span><span class="tag">pi&#281;&#263;, sze&#347;&#263;</span><span class="tag">siedem, osiem</span><span class="tag">dziewi&#281;&#263;</span><span class="tag">dziesi&#281;&#263;</span><span class="tag">jedena&#347;cie</span><span class="tag">dwana&#347;cie</span><span class="tag">trzyna&#347;cie</span><span class="tag">czterna&#347;cie</span><span class="tag">pi&#281;tna&#347;cie</span><span class="tag">szesna&#347;cie</span><span class="tag">siedemna&#347;cie</span><span class="tag">osiemna&#347;cie</span><span class="tag">dziewi&#281;tna&#347;cie</span><span class="tag">dwadzie&#347;cia</span><span class="tag">rok</span><span class="tag">dwa lata</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 16 ===================== -->
+<section class="chapter" id="ch16">
+<div class="chapter-num">Chapter 16</div>
+<h2>Days of the Week &amp; Time Expressions</h2>
+
+<h3>Days of the Week</h3>
+<p>In Polish, days are <strong>not capitalized</strong> (unless starting a sentence).</p>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th><th scope="col">"On [day]"</th></tr>
+<tr><td class="polish-word">poniedzia&#322;ek</td><td>Monday</td><td>w poniedzia&#322;ek</td></tr>
+<tr><td class="polish-word">wtorek</td><td>Tuesday</td><td>we wtorek</td></tr>
+<tr><td class="polish-word">&#347;roda</td><td>Wednesday</td><td>w &#347;rod&#281;</td></tr>
+<tr><td class="polish-word">czwartek</td><td>Thursday</td><td>w czwartek</td></tr>
+<tr><td class="polish-word">pi&#261;tek</td><td>Friday</td><td>w pi&#261;tek</td></tr>
+<tr><td class="polish-word">sobota</td><td>Saturday</td><td>w sobot&#281;</td></tr>
+<tr><td class="polish-word">niedziela</td><td>Sunday</td><td>w niedziel&#281;</td></tr>
+</table>
+
+<div class="note">
+<strong>Notice:</strong> Masculine-ending days use "w + nominative" (w poniedzia&#322;ek), while feminine-ending days use "w + accusative" (w sobot<strong>&#281;</strong>, w niedziel<strong>&#281;</strong>, w &#347;rod<strong>&#281;</strong>).
+</div>
+
+<h3>Time of Day</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">rano</td><td>in the morning</td></tr>
+<tr><td class="polish-word">po po&#322;udniu</td><td>in the afternoon</td></tr>
+<tr><td class="polish-word">wieczorem</td><td>in the evening</td></tr>
+</table>
+
+<h3>Frequency &amp; Duration</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">codziennie</td><td>every day</td></tr>
+<tr><td class="polish-word">raz w tygodniu</td><td>once a week</td></tr>
+<tr><td class="polish-word">weekend</td><td>weekend</td></tr>
+<tr><td class="polish-word">Dzisiaj jest...</td><td>Today is...</td></tr>
+</table>
+
+<div class="example-box">
+<div class="pl">Ona ta&#324;czy&#322;a <strong>w sobot&#281;</strong> ca&#322;&#261; noc.</div>
+<div class="en">She danced all night on Saturday.</div>
+</div>
+<div class="example-box">
+<div class="pl">On kupi gazet&#281; <strong>po po&#322;udniu</strong>.</div>
+<div class="en">He will buy a newspaper this afternoon.</div>
+</div>
+<div class="example-box">
+<div class="pl">One nie p&oacute;jd&#261; do pracy <strong>w sobot&#281;</strong>.</div>
+<div class="en">They won't go to work on Saturday.</div>
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">poniedzia&#322;ek</span><span class="tag">wtorek</span><span class="tag">&#347;roda</span><span class="tag">pi&#261;tek</span><span class="tag">sobota</span><span class="tag">niedziela</span><span class="tag">rano</span><span class="tag">po po&#322;udniu</span><span class="tag">wieczorem</span><span class="tag">codziennie</span><span class="tag">raz w tygodniu</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 17 ===================== -->
+<section class="chapter" id="ch17">
+<div class="chapter-num">Chapter 17</div>
+<h2>Prepositions of Place</h2>
+
+<p>Polish prepositions of place require specific <strong>cases</strong> on the nouns that follow them.</p>
+
+<h3><em>w</em> + Locative (in/at)</h3>
+<p>The most common preposition of place. The noun goes into the locative case:</p>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th><th scope="col">Base Noun</th></tr>
+<tr><td class="polish-word">w domu</td><td>at home</td><td>dom</td></tr>
+<tr><td class="polish-word">w mie&#347;cie</td><td>in the city</td><td>miasto</td></tr>
+<tr><td class="polish-word">w szkole</td><td>in school</td><td>szko&#322;a</td></tr>
+<tr><td class="polish-word">w szpitalu</td><td>in hospital</td><td>szpital</td></tr>
+<tr><td class="polish-word">w restauracji</td><td>in a restaurant</td><td>restauracja</td></tr>
+<tr><td class="polish-word">w mieszkaniu</td><td>in a flat</td><td>mieszkanie</td></tr>
+<tr><td class="polish-word">w supermarkecie</td><td>in a supermarket</td><td>supermarket</td></tr>
+</table>
+
+<h3><em>na</em> + Locative (on/at)</h3>
+<p>Used for surfaces, open areas, and certain fixed expressions:</p>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">na rogu</td><td>on the corner</td></tr>
+<tr><td class="polish-word">na wsi</td><td>in the countryside</td></tr>
+<tr><td class="polish-word">na dole</td><td>downstairs</td></tr>
+<tr><td class="polish-word">na g&oacute;rze</td><td>upstairs</td></tr>
+</table>
+
+<h3><em>po</em> + Locative (on a side)</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">po lewej stronie</td><td>on the left</td></tr>
+<tr><td class="polish-word">po prawej stronie</td><td>on the right</td></tr>
+</table>
+
+<h3>Direction Words</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th></tr>
+<tr><td class="polish-word">tam</td><td>over there</td></tr>
+<tr><td class="polish-word">tu</td><td>here</td></tr>
+</table>
+
+<div class="example-box">
+<div class="pl">Mieszkam <strong>w</strong> domu.</div>
+<div class="en">I live at home / in a house.</div>
+</div>
+<div class="example-box">
+<div class="pl">Przepraszam, gdzie jest bankomat?</div>
+<div class="en">Excuse me, where is the ATM?</div>
+</div>
+
+<div class="note">
+<strong>w vs. na:</strong> The choice between <em>w</em> and <em>na</em> is sometimes idiomatic. For example, <em>na wsi</em> (in the countryside) uses <em>na</em>, not <em>w</em>. Similarly, <em>na lotnisku</em> (at the airport), <em>na dworcu</em> (at the station). These are best learned as fixed phrases.
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary</div>
+<div class="tags">
+<span class="tag">w domu</span><span class="tag">w mie&#347;cie</span><span class="tag">w szkole</span><span class="tag">w szpitalu</span><span class="tag">w restauracji</span><span class="tag">w mieszkaniu</span><span class="tag">w supermarkecie</span><span class="tag">na rogu</span><span class="tag">na wsi</span><span class="tag">na dole</span><span class="tag">na g&oacute;rze</span><span class="tag">po lewej stronie</span><span class="tag">po prawej stronie</span><span class="tag">tam</span><span class="tag">tu</span>
+</div>
+</div>
+</section>
+
+<!-- ===================== CHAPTER 18 ===================== -->
+<section class="chapter" id="ch18">
+<div class="chapter-num">Chapter 18</div>
+<h2>Possessives &amp; Family Vocabulary</h2>
+
+<h3>Possessive Pronouns</h3>
+<p>Possessives agree with the <strong>noun they describe</strong> (not the possessor) in gender, number, and case.</p>
+
+<h3>Singular Possessives</h3>
+<table>
+<tr><th scope="col"></th><th scope="col">Masculine</th><th scope="col">Feminine</th><th scope="col">Neuter</th></tr>
+<tr><td><strong>my</strong></td><td class="polish-word">m&oacute;j</td><td class="polish-word">moja</td><td class="polish-word">moje</td></tr>
+<tr><td><strong>your</strong></td><td class="polish-word">tw&oacute;j</td><td class="polish-word">twoja</td><td class="polish-word">twoje</td></tr>
+</table>
+
+<h3>Plural Possessives (Masculine Personal vs. Other)</h3>
+<p>In the plural, Polish distinguishes between masculine personal (groups with at least one male) and all other groups:</p>
+<table>
+<tr><th scope="col"></th><th scope="col">Masc. Personal Plural</th><th scope="col">Other Plural</th></tr>
+<tr><td><strong>my</strong></td><td class="polish-word">moi</td><td class="polish-word">moje</td></tr>
+<tr><td><strong>your</strong></td><td class="polish-word">twoi</td><td class="polish-word">twoje</td></tr>
+</table>
+
+<div class="example-box">
+<div class="pl"><strong>moi</strong> dziadkowie</div>
+<div class="en">my grandparents (masculine personal plural)</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>moje</strong> babcie</div>
+<div class="en">my grandmothers (non-masculine plural)</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>twoi</strong> bracia</div>
+<div class="en">your brothers (masculine personal plural)</div>
+</div>
+<div class="example-box">
+<div class="pl"><strong>twoje</strong> siostry</div>
+<div class="en">your sisters (non-masculine plural)</div>
+</div>
+
+<h3>Expressing "My family is..."</h3>
+<div class="example-box">
+<div class="pl">Moja rodzina to...</div>
+<div class="en">My family is...</div>
+</div>
+<div class="example-box">
+<div class="pl">M&oacute;j adres to...</div>
+<div class="en">My address is...</div>
+</div>
+<div class="example-box">
+<div class="pl">M&oacute;j numer telefonu to...</div>
+<div class="en">My phone number is...</div>
+</div>
+
+<h3>Complete Family Vocabulary</h3>
+<table>
+<tr><th scope="col">Polish</th><th scope="col">English</th><th scope="col">Gender</th></tr>
+<tr><td class="polish-word">matka</td><td>mother</td><td>F</td></tr>
+<tr><td class="polish-word">ojciec</td><td>father</td><td>M</td></tr>
+<tr><td class="polish-word">rodzice</td><td>parents</td><td>Pl.</td></tr>
+<tr><td class="polish-word">brat</td><td>brother</td><td>M</td></tr>
+<tr><td class="polish-word">siostra</td><td>sister</td><td>F</td></tr>
+<tr><td class="polish-word">syn</td><td>son</td><td>M</td></tr>
+<tr><td class="polish-word">c&oacute;rka</td><td>daughter</td><td>F</td></tr>
+<tr><td class="polish-word">babcia</td><td>grandmother</td><td>F</td></tr>
+<tr><td class="polish-word">dziadek</td><td>grandfather</td><td>M</td></tr>
+<tr><td class="polish-word">m&#261;&#380;</td><td>husband</td><td>M</td></tr>
+<tr><td class="polish-word">dzieci</td><td>children</td><td>Pl.</td></tr>
+<tr><td class="polish-word">dziecko</td><td>child</td><td>N</td></tr>
+<tr><td class="polish-word">dziewczyna</td><td>girlfriend</td><td>F</td></tr>
+<tr><td class="polish-word">ch&#322;opak</td><td>boyfriend</td><td>M</td></tr>
+<tr><td class="polish-word">przyjaciel / przyjaci&oacute;&#322;ka</td><td>friend (m/f)</td><td>M / F</td></tr>
+<tr><td class="polish-word">te&#347;&#263;</td><td>father-in-law</td><td>M</td></tr>
+<tr><td class="polish-word">te&#347;ciowa</td><td>mother-in-law</td><td>F</td></tr>
+<tr><td class="polish-word">zi&#281;&#263;</td><td>son-in-law</td><td>M</td></tr>
+<tr><td class="polish-word">synowa</td><td>daughter-in-law</td><td>F</td></tr>
+<tr><td class="polish-word">kuzyn / kuzynka</td><td>cousin (m/f)</td><td>M / F</td></tr>
+</table>
+
+<div class="note">
+<strong>Cultural note:</strong> Polish family vocabulary is very specific. Unlike English, which uses "cousin" for everyone, Polish distinguishes male (<em>kuzyn</em>) and female (<em>kuzynka</em>) cousins. The same goes for friends (<em>przyjaciel / przyjaci&oacute;&#322;ka</em>), in-laws, and most relational terms.
+</div>
+
+<div class="vocab-box">
+<div class="vocab-box-title">Your Vocabulary &mdash; Family &amp; Possessives</div>
+<div class="tags">
+<span class="tag">Moja rodzina to...</span><span class="tag">moi dziadkowie</span><span class="tag">moje babcie</span><span class="tag">twoi bracia</span><span class="tag">twoje siostry</span><span class="tag">Mam brata.</span><span class="tag">Mam siostr&#281;.</span><span class="tag">babcia</span><span class="tag">rodzice</span><span class="tag">syn</span><span class="tag">c&oacute;rka</span><span class="tag">te&#347;&#263;</span><span class="tag">te&#347;ciowa</span><span class="tag">zi&#281;&#263;</span><span class="tag">synowa</span>
+</div>
+</div>
+</section>
+
+  </div><!-- end category-content sentences -->
+</div><!-- end category sentences -->
+
+<!-- END CHAPTERS -->
+
+<div class="cross-links">
+  <h3>Put Your Grammar into Practice</h3>
+  <div class="cross-links__grid">
+    <a href="quiz-grammar.html" class="cross-link-card">
+      <span class="cross-link-icon">🧠</span>
+      <span class="cross-link-title">Grammar Quiz</span>
+      <span class="cross-link-desc">Test conjugations, cases, and tenses</span>
+    </a>
+    <a href="vocabulary.html" class="cross-link-card">
+      <span class="cross-link-icon">📖</span>
+      <span class="cross-link-title">Vocabulary Reference</span>
+      <span class="cross-link-desc">Browse all words by theme</span>
+    </a>
+    <a href="quiz-pl-en.html" class="cross-link-card">
+      <span class="cross-link-icon">✏️</span>
+      <span class="cross-link-title">Vocabulary Quizzes</span>
+      <span class="cross-link-desc">Practice translating words</span>
+    </a>
+  </div>
+</div>
+
+<div style="text-align:center; padding:2rem 0; color:var(--text-secondary); font-size:0.85rem;">
+  <div class="flag-bar" style="max-width:200px; margin:0 auto 1rem; height:4px; background:linear-gradient(to right, #fff 50%, var(--red) 50%); border:1px solid var(--border); border-radius:2px;"></div>
+  <p><strong>Gramatyka Polska</strong> &mdash; A1&rarr;A2</p>
+  <p>Built from your Busuu vocabulary &bull; 549 words &bull; 18 chapters</p>
+  <p style="margin-top:0.5rem; opacity:0.6;">Powodzenia! (Good luck!)</p>
+</div>
+
+</main>
+
+<script>
+// Grammar sidebar toggle (mobile)
+function toggleGrammarSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('open');
+  document.getElementById('grammarOverlay').classList.toggle('active');
+  var toggle = document.getElementById('sidebarToggle');
+  if (toggle) toggle.setAttribute('aria-expanded', String(sidebar.classList.contains('open')));
+}
+
+// Category accordion toggle
+function toggleCategory(catId) {
+  var cat = document.getElementById(catId);
+  if (!cat) return;
+  cat.classList.toggle('open');
+  var header = cat.querySelector('.category-header');
+  if (header) header.setAttribute('aria-expanded', String(cat.classList.contains('open')));
+}
+
+// Keyboard support for category headers
+document.addEventListener('keydown', function(e) {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('category-header')) {
+    e.preventDefault();
+    e.target.click();
+  }
+});
+
+// Breadcrumbs
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.polishHub) {
+    var bc = window.polishHub.createBreadcrumbs([
+      {label: 'Home', href: 'index.html'},
+      {label: 'Grammar'}
+    ]);
+    var main = document.getElementById('main-content');
+    if (main) main.prepend(bc);
+  }
+});
+
+// Active chapter tracking & progress
+(function() {
+  var sections = document.querySelectorAll('.chapter');
+  var links = document.querySelectorAll('#sidebarNav a[href^="#ch"]');
+  var progressBar = document.getElementById('progressBar');
+  var progressText = document.getElementById('progressText');
+  var totalChapters = sections.length;
+
+  function getOffsetTop(el) {
+    var top = 0;
+    while (el) {
+      top += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return top;
+  }
+
+  function updateActive() {
+    var current = 0;
+    var scrollPos = window.scrollY + 120;
+    sections.forEach(function(sec, i) {
+      // Only consider sections inside open categories
+      var cat = sec.closest('.category');
+      if (cat && cat.classList.contains('open')) {
+        if (getOffsetTop(sec) <= scrollPos) current = i;
+      } else if (!cat) {
+        if (getOffsetTop(sec) <= scrollPos) current = i;
+      }
+    });
+    links.forEach(function(l) { l.classList.remove('active'); l.removeAttribute('aria-current'); });
+    if (links[current]) { links[current].classList.add('active'); links[current].setAttribute('aria-current', 'true'); }
+
+    // Progress
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? Math.min(100, Math.round((window.scrollY / docHeight) * 100)) : 0;
+    progressBar.style.width = pct + '%';
+    progressText.textContent = 'Chapter ' + (current + 1) + ' of ' + totalChapters + ' \u2022 ' + pct + '% read';
+  }
+
+  window.addEventListener('scroll', updateActive);
+  updateActive();
+
+  // Sidebar link click: auto-open parent category + close mobile sidebar
+  links.forEach(function(l) {
+    l.addEventListener('click', function() {
+      // Auto-open the parent category
+      var catId = this.getAttribute('data-cat');
+      if (catId) {
+        var cat = document.getElementById(catId);
+        if (cat && !cat.classList.contains('open')) {
+          cat.classList.add('open');
+          var header = cat.querySelector('.category-header');
+          if (header) header.setAttribute('aria-expanded', 'true');
+        }
+      }
+      // Close mobile sidebar
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('grammarOverlay').classList.remove('active');
+        var toggle = document.getElementById('sidebarToggle');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
