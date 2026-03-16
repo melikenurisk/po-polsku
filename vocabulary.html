@@ -286,27 +286,6 @@
 [data-theme="dark"] .type-conjunction { background: #042f2e; color: #5eead4; }
 [data-theme="dark"] .type-particle { background: #1e293b; color: #94a3b8; }
 
-.strength-dots {
-  display: flex;
-  gap: 4px;
-}
-
-.strength-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  transition: background var(--ease);
-}
-
-.strength-dot.filled {
-  background: var(--red);
-}
-
-.strength-dot.filled.s-strong { background: #22c55e; }
-.strength-dot.filled.s-medium { background: #f59e0b; }
-.strength-dot.filled.s-weak { background: var(--red); }
-
 /* No results */
 .no-results {
   text-align: center;
@@ -402,7 +381,6 @@
     </div>
     <select class="filter-select" id="filter-theme" aria-label="Filter by theme"><option value="">All Themes</option></select>
     <select class="filter-select" id="filter-type" aria-label="Filter by word type"><option value="">All Types</option></select>
-    <select class="filter-select" id="filter-strength" aria-label="Filter by strength"><option value="">All Strengths</option></select>
   </div>
 
   <div class="vocab-container" id="main"></div>
@@ -466,8 +444,6 @@ const TYPE_COLORS = {
   particle: "type-particle"
 };
 
-const STRENGTH_VAL = { strong: 3, medium: 2, weak: 1 };
-
 // Filter out sentences
 const vocab = VOCAB_DATA.filter(e => e.type !== "sentence");
 
@@ -492,29 +468,17 @@ function populateFilters() {
     typeSelect.appendChild(o);
   });
 
-  const strSelect = document.getElementById("filter-strength");
-  ["strong", "medium", "weak"].forEach(s => {
-    const o = document.createElement("option");
-    o.value = s;
-    o.textContent = s.charAt(0).toUpperCase() + s.slice(1);
-    strSelect.appendChild(o);
-  });
 }
 
 function renderStats(filtered) {
   const bar = document.getElementById("stats-bar");
   const total = filtered.length;
   const byType = {};
-  const byStr = { strong: 0, medium: 0, weak: 0 };
   filtered.forEach(e => {
     byType[e.type] = (byType[e.type] || 0) + 1;
-    byStr[e.strength]++;
   });
 
   let html = `<div class="stat-item total"><span class="stat-num">${total}</span> words</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${byStr.strong}</span> strong</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${byStr.medium}</span> medium</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#ef4444">${byStr.weak}</span> weak</div>`;
 
   const topTypes = Object.entries(byType).sort((a,b) => b[1]-a[1]).slice(0, 4);
   topTypes.forEach(([t, c]) => {
@@ -528,29 +492,16 @@ function getFiltered() {
   const search = document.getElementById("search").value.toLowerCase().trim();
   const theme = document.getElementById("filter-theme").value;
   const type = document.getElementById("filter-type").value;
-  const strength = document.getElementById("filter-strength").value;
 
   return vocab.filter(e => {
     if (theme && e.theme !== theme) return false;
     if (type && e.type !== type) return false;
-    if (strength && e.strength !== strength) return false;
     if (search) {
       const s = search;
       if (!e.polish.toLowerCase().includes(s) && !e.english.toLowerCase().includes(s)) return false;
     }
     return true;
   });
-}
-
-function makeStrengthDots(strength) {
-  const val = STRENGTH_VAL[strength] || 0;
-  const cls = "s-" + strength;
-  let html = '<div class="strength-dots" title="' + strength + '">';
-  for (let i = 0; i < 3; i++) {
-    html += `<div class="strength-dot ${i < val ? 'filled ' + cls : ''}"></div>`;
-  }
-  html += '</div>';
-  return html;
 }
 
 function render() {
@@ -615,7 +566,6 @@ function render() {
         <div class="word-english">${escHtml(w.english)}</div>
         <div class="word-meta">
           <span class="type-badge ${TYPE_COLORS[w.type] || ''}">${w.type}</span>
-          ${makeStrengthDots(w.strength)}
         </div>
       </div>`;
     });
@@ -663,7 +613,6 @@ function toggleThemeSection(id, forceOpen) {
   });
   document.getElementById("filter-theme").addEventListener("change", render);
   document.getElementById("filter-type").addEventListener("change", render);
-  document.getElementById("filter-strength").addEventListener("change", render);
 
   // Add breadcrumbs
   if (window.polishHub) {
