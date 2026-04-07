@@ -311,27 +311,6 @@
 [data-theme="dark"] .source-custom { background: #3b0764; color: #d8b4fe; }
 [data-theme="dark"] .source-other { background: #3b0764; color: #d8b4fe; }
 
-.strength-dots {
-  display: flex;
-  gap: 4px;
-}
-
-.strength-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  transition: background var(--ease);
-}
-
-.strength-dot.filled {
-  background: var(--red);
-}
-
-.strength-dot.filled.s-strong { background: #22c55e; }
-.strength-dot.filled.s-medium { background: #f59e0b; }
-.strength-dot.filled.s-weak { background: var(--red); }
-
 /* No results */
 .no-results {
   text-align: center;
@@ -544,7 +523,6 @@
     </div>
     <select class="filter-select" id="filter-theme" aria-label="Filter by theme"><option value="">All Themes</option></select>
     <select class="filter-select" id="filter-type" aria-label="Filter by word type"><option value="">All Types</option></select>
-    <select class="filter-select" id="filter-strength" aria-label="Filter by strength"><option value="">All Strengths</option></select>
     <select class="filter-select" id="filter-source" aria-label="Filter by source"><option value="">All Sources</option><option value="busuu">Busuu</option><option value="duolingo">Duolingo</option><option value="both">Both</option></select>
   </div>
 
@@ -714,7 +692,6 @@ const TYPE_COLORS = {
   sentence: "type-sentence"
 };
 
-const STRENGTH_VAL = { strong: 3, medium: 2, weak: 1 };
 
 // Filter out sentences
 const vocab = VOCAB_DATA.filter(e => e.type !== "sentence");
@@ -740,24 +717,15 @@ function populateFilters() {
     typeSelect.appendChild(o);
   });
 
-  const strSelect = document.getElementById("filter-strength");
-  ["strong", "medium", "weak"].forEach(s => {
-    const o = document.createElement("option");
-    o.value = s;
-    o.textContent = s.charAt(0).toUpperCase() + s.slice(1);
-    strSelect.appendChild(o);
-  });
 }
 
 function renderStats(filtered) {
   const bar = document.getElementById("stats-bar");
   const total = filtered.length;
   const byType = {};
-  const byStr = { strong: 0, medium: 0, weak: 0 };
   const bySrc = { busuu: 0, duolingo: 0, both: 0 };
   filtered.forEach(e => {
     byType[e.type] = (byType[e.type] || 0) + 1;
-    byStr[e.strength]++;
     if (e.source) bySrc[e.source]++;
   });
 
@@ -765,9 +733,6 @@ function renderStats(filtered) {
   html += `<div class="stat-item"><span class="stat-num" style="color:#3b82f6">${bySrc.busuu}</span> Busuu</div>`;
   html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${bySrc.duolingo}</span> Duo</div>`;
   html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${bySrc.both}</span> Both</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${byStr.strong}</span> strong</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${byStr.medium}</span> medium</div>`;
-  html += `<div class="stat-item"><span class="stat-num" style="color:#ef4444">${byStr.weak}</span> weak</div>`;
 
   bar.innerHTML = html;
 }
@@ -776,13 +741,11 @@ function getFiltered() {
   const search = document.getElementById("search").value.toLowerCase().trim();
   const theme = document.getElementById("filter-theme").value;
   const type = document.getElementById("filter-type").value;
-  const strength = document.getElementById("filter-strength").value;
   const source = document.getElementById("filter-source").value;
 
   return vocab.filter(e => {
     if (theme && e.theme !== theme) return false;
     if (type && e.type !== type) return false;
-    if (strength && e.strength !== strength) return false;
     if (source && e.source !== source) return false;
     if (search) {
       const s = search;
@@ -790,17 +753,6 @@ function getFiltered() {
     }
     return true;
   });
-}
-
-function makeStrengthDots(strength) {
-  const val = STRENGTH_VAL[strength] || 0;
-  const cls = "s-" + strength;
-  let html = '<div class="strength-dots" title="' + strength + '">';
-  for (let i = 0; i < 3; i++) {
-    html += `<div class="strength-dot ${i < val ? 'filled ' + cls : ''}"></div>`;
-  }
-  html += '</div>';
-  return html;
 }
 
 function render() {
@@ -866,7 +818,6 @@ function render() {
         <div class="word-meta">
           <span class="source-badge source-${w.source || 'busuu'}">${w.source || 'busuu'}</span>
           <span class="type-badge ${TYPE_COLORS[w.type] || ''}">${w.type}</span>
-          ${makeStrengthDots(w.strength)}
         </div>
       </div>`;
     });
@@ -914,7 +865,6 @@ function toggleThemeSection(id, forceOpen) {
   });
   document.getElementById("filter-theme").addEventListener("change", render);
   document.getElementById("filter-type").addEventListener("change", render);
-  document.getElementById("filter-strength").addEventListener("change", render);
   document.getElementById("filter-source").addEventListener("change", render);
 
   // Add breadcrumbs
@@ -1017,7 +967,7 @@ function addSingleWord() {
     return;
   }
 
-  const newWord = { polish, english, type, strength: 'weak', theme, source: 'custom' };
+  const newWord = { polish, english, type, theme, source: 'custom' };
   vocab.push(newWord);
 
   const custom = loadCustomWords();
@@ -1100,7 +1050,6 @@ function addBulkWords() {
       polish: w.polish,
       english: w.english,
       type: detectType(w.polish, w.english),
-      strength: 'weak',
       theme,
       source
     };
