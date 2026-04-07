@@ -626,6 +626,16 @@
     </div>
 
     <div class="settings-section">
+      <h3>Source</h3>
+      <div class="count-options">
+        <button class="count-btn active" data-source="" onclick="setSource('')" aria-pressed="true">All</button>
+        <button class="count-btn" data-source="busuu" onclick="setSource('busuu')" aria-pressed="false">Busuu</button>
+        <button class="count-btn" data-source="duolingo" onclick="setSource('duolingo')" aria-pressed="false">Duolingo</button>
+        <button class="count-btn" data-source="both" onclick="setSource('both')" aria-pressed="false">Both</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <h3>Options</h3>
       <div class="toggle-row">
         <div>
@@ -709,7 +719,8 @@ let settings = {
   count: 10,
   weighted: true,
   timer: false,
-  themes: new Set(themeNames)
+  themes: new Set(themeNames),
+  source: ''
 };
 
 let quiz = null;
@@ -742,8 +753,12 @@ function selectAllThemes(on) {
   renderThemes();
 }
 
+function getPool() {
+  return vocab.filter(e => settings.themes.has(e.theme) && (!settings.source || e.source === settings.source));
+}
+
 function updateWordCount() {
-  const pool = vocab.filter(e => settings.themes.has(e.theme));
+  const pool = getPool();
   document.getElementById('wordCountInfo').textContent = `${pool.length} words available from ${settings.themes.size} theme(s)`;
 }
 
@@ -758,11 +773,21 @@ function setMode(m) {
 
 function setCount(n) {
   settings.count = n;
-  document.querySelectorAll('.count-btn').forEach(c => {
+  document.querySelectorAll('.count-btn[data-count]').forEach(c => {
     var isActive = c.dataset.count === String(n);
     c.classList.toggle('active', isActive);
     c.setAttribute('aria-pressed', String(isActive));
   });
+}
+
+function setSource(s) {
+  settings.source = s;
+  document.querySelectorAll('.count-btn[data-source]').forEach(c => {
+    var isActive = c.dataset.source === s;
+    c.classList.toggle('active', isActive);
+    c.setAttribute('aria-pressed', String(isActive));
+  });
+  updateWordCount();
 }
 
 // Build quiz questions
@@ -770,7 +795,7 @@ function buildQuiz() {
   settings.weighted = document.getElementById('weightToggle').checked;
   settings.timer = document.getElementById('timerToggle').checked;
 
-  let pool = vocab.filter(e => settings.themes.has(e.theme));
+  let pool = getPool();
   if (pool.length === 0) { alert('Select at least one theme!'); return null; }
 
   // Weighted pool
@@ -1154,7 +1179,7 @@ function reviewMistakes() {
     questions: entries.map(entry => {
       let options = [];
       if (settings.mode === 'mc') {
-        const pool = vocab.filter(e => settings.themes.has(e.theme));
+        const pool = getPool();
         options = generateOptions(entry, pool);
       }
       return { entry, options, answered: false, correct: false, userAnswer: '' };

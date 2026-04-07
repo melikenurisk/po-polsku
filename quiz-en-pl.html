@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English → Polish Vocabulary Quiz</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<script src="js/vocabulary-data.js"></script>
+<script src="js/shared.js" defer></script>
+<style>
+/* Quiz-specific custom properties */
+:root {
+  --hover-bg: #f0f0f0;
+  --tag-bg: #eee;
+  --orange: #e67e22;
+}
+[data-theme="dark"] {
+  --hover-bg: #21262d;
+  --tag-bg: #21262d;
+}
+.quiz-container { max-width: 700px; margin: 0 auto; padding: var(--sp-4); }
+
+/* Header */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-4) 0; margin-bottom: var(--sp-4);
+}
+.header h1 {
+  font-size: 1.4rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--red), var(--navy));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-controls { display: flex; gap: var(--sp-2); align-items: center; }
+
+/* Cards — extends shared .card with quiz-specific overrides */
+.card {
+  margin-bottom: var(--sp-4);
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+@keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+.shake { animation: shake 0.4s ease; }
+.pop { animation: pop 0.3s ease; }
+
+/* Quiz page button variants (single-dash convention used in HTML/JS) */
+.btn-primary { background: var(--red); color: #fff; }
+.btn-primary:hover { background: #b91133; }
+.btn-secondary { background: var(--navy); color: #fff; }
+.btn-secondary:hover { background: #13203a; }
+.btn-outline {
+  background: transparent; border: 2px solid var(--border); color: var(--text);
+}
+.btn-outline:hover { background: var(--hover-bg); }
+.btn-sm { padding: 6px 14px; font-size: 0.85rem; }
+
+/* Settings */
+.setting-group { margin-bottom: var(--sp-5); }
+.setting-group label { display: block; font-weight: 600; margin-bottom: var(--sp-2); font-size: 0.9rem; }
+.setting-group small { color: var(--text-secondary); font-size: 0.8rem; }
+
+.radio-group, .toggle-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-1); }
+.radio-group label, .check-label {
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 400; font-size: 0.9rem; cursor: pointer;
+}
+.toggle-row { align-items: center; justify-content: space-between; }
+
+.theme-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.theme-chip {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 16px;
+  background: var(--tag-bg); font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s; user-select: none;
+  border: 2px solid transparent;
+}
+.theme-chip.active { border-color: var(--red); background: rgba(220,20,60,0.1); }
+.theme-chip input { display: none; }
+.theme-actions { display: flex; gap: 8px; margin-top: 6px; }
+.theme-actions button { background:none; border:none; color:var(--red); cursor:pointer; font-size:0.82rem; font-weight:600; text-decoration:underline; }
+
+select, input[type="text"] {
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--input-bg); color: var(--text);
+  font-size: 0.95rem; width: 100%; transition: border 0.2s;
+}
+select:focus, input[type="text"]:focus { outline: none; border-color: var(--red); }
+
+/* Toggle switch */
+.switch { position:relative; width:44px; height:24px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.slider {
+  position:absolute; inset:0; background:var(--border); border-radius:24px;
+  cursor:pointer; transition:0.3s;
+}
+.slider::before {
+  content:''; position:absolute; width:18px; height:18px;
+  left:3px; bottom:3px; background:#fff; border-radius:50%;
+  transition:0.3s;
+}
+.switch input:checked + .slider { background:var(--red); }
+.switch input:checked + .slider::before { transform:translateX(20px); }
+
+/* Progress bar */
+.progress-bar-container {
+  width:100%; height:8px; background:var(--border); border-radius:4px;
+  overflow:hidden; margin-bottom:12px;
+}
+.progress-bar-fill {
+  height:100%; background: linear-gradient(90deg, var(--red), var(--navy));
+  border-radius:4px; transition: width 0.4s ease;
+}
+
+/* Quiz header info */
+.quiz-info {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:8px; font-size:0.85rem; color:var(--text-secondary);
+}
+.streak { font-weight:700; color: var(--orange); }
+.streak.hot { color: var(--red); }
+
+/* Question */
+.question-word {
+  text-align:center; font-size:1.8rem; font-weight:700;
+  color:var(--navy); margin:20px 0 8px;
+}
+[data-theme="dark"] .question-word { color: #e6edf3; }
+.question-type {
+  text-align:center; font-size:0.8rem; color:var(--text-secondary);
+  margin-bottom:20px; text-transform:capitalize;
+}
+
+/* Multiple choice options */
+.options { display:flex; flex-direction:column; gap:10px; }
+.option-btn {
+  width:100%; padding:14px 18px; border-radius:var(--radius);
+  border:2px solid var(--border); background:var(--card-bg);
+  text-align:left; font-size:1rem; cursor:pointer;
+  transition:all 0.2s; color:var(--text);
+}
+.option-btn:hover:not(:disabled) { border-color:var(--navy); background:var(--hover-bg); }
+.option-btn.correct { border-color:var(--green); background:rgba(40,167,69,0.1); }
+.option-btn.wrong { border-color:var(--red); background:rgba(220,20,60,0.1); }
+.option-btn:disabled { cursor:default; }
+
+/* Type answer */
+.type-answer-area { text-align:center; }
+.answer-input {
+  font-size:1.2rem; text-align:center; padding:12px 16px;
+  max-width:400px; margin:0 auto;
+}
+.polish-keyboard {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:6px;
+  margin:12px 0;
+}
+.polish-keyboard button {
+  width:40px; height:40px; border-radius:var(--radius-sm);
+  border:1px solid var(--border); background:var(--tag-bg);
+  font-size:1.1rem; cursor:pointer; transition:all 0.15s;
+  color:var(--text);
+}
+.polish-keyboard button:hover { background:var(--red); color:#fff; }
+.submit-row { display:flex; justify-content:center; gap:10px; margin-top:14px; }
+
+/* Feedback */
+.feedback {
+  text-align:center; padding:14px; border-radius:var(--radius);
+  margin-top:14px; font-weight:600; font-size:0.95rem;
+  animation: fadeIn 0.3s ease;
+}
+.feedback.correct { background:rgba(40,167,69,0.12); color:var(--green); }
+.feedback.wrong { background:rgba(220,20,60,0.12); color:var(--red); }
+.feedback.almost { background:rgba(230,126,34,0.12); color:var(--orange); }
+.feedback .correct-answer { font-weight:400; margin-top:4px; font-size:0.9rem; }
+
+/* Results */
+.results-score {
+  text-align:center; margin:10px 0 20px;
+}
+.results-score .big-score {
+  font-size:3rem; font-weight:800;
+  background: linear-gradient(135deg, var(--red), var(--navy));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.results-score .sub { font-size:0.95rem; color:var(--text-secondary); }
+.stat-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--sp-3);
+  margin-bottom:var(--sp-5);
+}
+.stat-box {
+  text-align:center; padding:var(--sp-3); border-radius:var(--radius);
+  background:var(--tag-bg);
+}
+.stat-box .val { font-size:1.4rem; font-weight:700; }
+.stat-box .lbl { font-size:0.75rem; color:var(--text-secondary); }
+.wrong-list { margin:var(--sp-4) 0; }
+.wrong-list h3 { font-size:1rem; margin-bottom:var(--sp-3); }
+.wrong-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:var(--sp-2) var(--sp-3); border-radius:var(--radius-sm); font-size:0.9rem;
+  background:var(--tag-bg); margin-bottom:var(--sp-2);
+}
+.wrong-item .eng { color:var(--text-secondary); }
+.wrong-item .pol { font-weight:600; }
+.wrong-item .user-ans { color:var(--red); font-size:0.8rem; }
+.results-actions { display:flex; gap:var(--sp-3); justify-content:center; flex-wrap:wrap; }
+
+/* Stats panel */
+.stats-bar {
+  display:flex; gap:16px; justify-content:center;
+  font-size:0.82rem; color:var(--text-secondary);
+  padding:10px 0;
+}
+.stats-bar span { font-weight:600; color:var(--text); }
+
+/* Responsive -- tablet */
+@media (max-width:768px) {
+  .quiz-container { padding:var(--sp-3); }
+  .card { padding:var(--sp-4); }
+  .question-word { font-size:1.4rem; }
+  .stat-grid { grid-template-columns:1fr 1fr; }
+  .header h1 { font-size:1.1rem; }
+  .theme-grid { gap: 5px; }
+  .toggle-row { gap: var(--sp-2); }
+  .answer-input { max-width: 100%; }
+}
+
+/* Responsive -- small mobile */
+@media (max-width:480px) {
+  .quiz-container { padding:var(--sp-2); }
+  .card { padding:var(--sp-3); }
+  .question-word { font-size:1.2rem; }
+  .header h1 { font-size:1rem; }
+  .stat-grid { grid-template-columns:1fr 1fr; gap:var(--sp-2); }
+  .stat-box { padding:var(--sp-2); }
+  .stat-box .val { font-size:1.1rem; }
+  .option-btn { padding:var(--sp-3) 14px; font-size:0.9rem; min-height:48px; }
+  .polish-keyboard button { width:36px; height:36px; font-size:1rem; }
+  .theme-chip { padding:3px var(--sp-2); font-size:0.78rem; }
+  .setting-group label { font-size:0.85rem; }
+  .wrong-item { padding:var(--sp-2); font-size:0.82rem; }
+  .results-score .big-score { font-size:2.2rem; }
+}
+
+/* Results cross-links */
+.results-links { margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--border); text-align: left; }
+.results-links h4 { margin-bottom: var(--sp-3); font-size: 0.95rem; color: var(--text-muted); }
+.results-link {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4); margin: var(--sp-1) var(--sp-2) var(--sp-1) 0;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+  transition: all 0.2s;
+}
+.results-link:hover { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="quiz-container" id="main-content">
+  <div class="header">
+    <h1>EN → PL Quiz</h1>
+    <div class="header-controls">
+      <div class="stats-bar" id="statsBar"></div>
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+
+<script>
+// vocabulary.json embedded at build time
+const ALL_VOCAB = VOCABULARY_DATA;
+
+// --- Utility ---
+function removeDiacritics(s) {
+  const map = {'ą':'a','ć':'c','ę':'e','ł':'l','ń':'n','ó':'o','ś':'s','ź':'z','ż':'z',
+                'Ą':'A','Ć':'C','Ę':'E','Ł':'L','Ń':'N','Ó':'O','Ś':'S','Ź':'Z','Ż':'Z'};
+  return s.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, c => map[c] || c);
+}
+function hasDiacriticDiff(input, correct) {
+  return removeDiacritics(input.trim()).toLowerCase() === removeDiacritics(correct.trim()).toLowerCase()
+    && input.trim().toLowerCase() !== correct.trim().toLowerCase();
+}
+function normalize(s) { return removeDiacritics(s.trim()).toLowerCase(); }
+function shuffle(arr) { let a=[...arr]; for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Filter out sentences
+const VOCAB = ALL_VOCAB.filter(e => e.type !== 'sentence');
+const THEMES = [...new Set(VOCAB.map(e => e.theme))].sort();
+const THEME_LABELS = {
+  adjectives:'Adjectives', adverbs:'Adverbs', animals:'Animals',
+  basic_grammar:'Basic Grammar', basic_words:'Basic Words',
+  body_health:'Body & Health', clothing:'Clothing', clothing_accessories:'Clothing & Accessories',
+  colors:'Colors', conjunctions:'Conjunctions', daily_actions:'Daily Actions',
+  daily_routines:'Daily Routines', directions:'Directions',
+  family:'Family', family_relationships:'Family & Relationships',
+  food_cooking:'Food & Cooking', food_drinks:'Food & Drinks', food_plurals:'Food & Plurals',
+  grammar_forms:'Grammar Forms', grammar_sentences:'Grammar Sentences',
+  greetings_basics:'Greetings & Basics', hobbies_activities:'Hobbies & Activities',
+  home_furniture:'Home & Furniture', home_objects:'Home & Objects',
+  names_identity:'Names & Identity', numbers:'Numbers',
+  people_society:'People & Society', personality_appearance:'Personality & Appearance',
+  places_locations:'Places & Locations', prepositions:'Prepositions',
+  professions_work:'Professions & Work', pronouns_possessives:'Pronouns & Possessives',
+  pronouns_quantifiers:'Pronouns & Quantifiers', question_words:'Question Words',
+  shopping:'Shopping', time_calendar:'Time & Calendar',
+  travel_transport:'Travel & Transport', useful_phrases:'Useful Phrases',
+  verb_conjugations:'Verb Conjugations', verbs_actions:'Verbs & Actions',
+  weather_seasons:'Weather & Seasons', work_school:'Work & School'
+};
+
+// --- State ---
+let state = {
+  screen: 'settings', // settings | quiz | results
+  mode: 'mc', // mc | type
+  numQuestions: 20,
+  selectedThemes: new Set(THEMES),
+  selectedSource: '',
+  strengthPriority: true,
+  acceptNoDiacritics: true,
+  questions: [],
+  currentQ: 0,
+  answers: [], // {correct,userAnswer,entry,diacriticIssue}
+  streak: 0,
+  bestStreak: 0,
+  feedback: null, // null | {type,message,correctAnswer}
+  answered: false,
+};
+
+// --- localStorage stats ---
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('polishQuizStats')) || {totalQuizzes:0,totalCorrect:0,totalAnswered:0,bestStreak:0,diacriticMisses:0}; }
+  catch { return {totalQuizzes:0,totalCorrect:0,totalAnswered:0,bestStreak:0,diacriticMisses:0}; }
+}
+function saveStats(s) { localStorage.setItem('polishQuizStats', JSON.stringify(s)); }
+function renderStatsBar() {
+  const s = loadStats();
+  const pct = s.totalAnswered ? Math.round(s.totalCorrect/s.totalAnswered*100) : 0;
+  document.getElementById('statsBar').innerHTML =
+    s.totalQuizzes ? `Quizzes: <span>${s.totalQuizzes}</span> | Avg: <span>${pct}%</span> | Best streak: <span>${s.bestStreak}</span>` : '';
+}
+
+function getPool() {
+  return VOCAB.filter(e => state.selectedThemes.has(e.theme) && (!state.selectedSource || e.source === state.selectedSource));
+}
+
+// --- Build questions ---
+function buildQuestions() {
+  let pool = getPool();
+  if (!pool.length) return [];
+
+  // Weight by strength
+  let weighted = [];
+  for (const e of pool) {
+    const w = state.strengthPriority ? ({weak:3,medium:2,strong:1}[e.strength]||1) : 1;
+    for (let i=0; i<w; i++) weighted.push(e);
+  }
+
+  // Pick questions (unique entries preferred)
+  let picked = [];
+  let used = new Set();
+  let limit = state.numQuestions === 'all' ? pool.length : Math.min(state.numQuestions, pool.length);
+  let attempts = 0;
+  while (picked.length < limit && attempts < limit * 20) {
+    const e = weighted[Math.floor(Math.random()*weighted.length)];
+    attempts++;
+    if (!used.has(e.polish)) {
+      used.add(e.polish);
+      picked.push(e);
+    }
+  }
+  // If we need more (shouldn't happen much), fill from pool
+  if (picked.length < limit) {
+    for (const e of shuffle(pool)) {
+      if (!used.has(e.polish)) { picked.push(e); used.add(e.polish); }
+      if (picked.length >= limit) break;
+    }
+  }
+  return shuffle(picked);
+}
+
+function getDistractors(entry, pool, count) {
+  // Prefer same theme
+  let sameTheme = pool.filter(e => e.theme === entry.theme && e.polish !== entry.polish);
+  let others = pool.filter(e => e.theme !== entry.theme && e.polish !== entry.polish);
+  let candidates = shuffle(sameTheme);
+  if (candidates.length < count) candidates = candidates.concat(shuffle(others));
+  return candidates.slice(0, count);
+}
+
+// --- Check answer ---
+function getAlternatives(polish) {
+  // split on / and return trimmed alternatives
+  return polish.split('/').map(s => s.trim()).filter(Boolean);
+}
+function checkAnswer(userInput, entry) {
+  const alts = getAlternatives(entry.polish);
+  const input = userInput.trim();
+  // exact match
+  for (const alt of alts) {
+    if (input.toLowerCase() === alt.toLowerCase()) return {correct:true, diacriticIssue:false};
+  }
+  // diacritics check
+  if (state.acceptNoDiacritics) {
+    for (const alt of alts) {
+      if (normalize(input) === normalize(alt)) {
+        // base letters match
+        if (hasDiacriticDiff(input, alt)) return {correct:true, diacriticIssue:true, correctSpelling:alt};
+        return {correct:true, diacriticIssue:false};
+      }
+    }
+  }
+  // wrong
+  return {correct:false, diacriticIssue:false};
+}
+
+// --- Render ---
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'settings') renderSettings(app);
+  else if (state.screen === 'quiz') renderQuiz(app);
+  else if (state.screen === 'results') renderResults(app);
+  renderStatsBar();
+}
+
+// Settings screen
+function renderSettings(app) {
+  const themeChips = THEMES.map(t => {
+    const active = state.selectedThemes.has(t);
+    const label = THEME_LABELS[t] || t.replace(/_/g,' ');
+    const count = VOCAB.filter(e=>e.theme===t).length;
+    return `<div class="theme-chip ${active?'active':''}" data-theme="${t}" onclick="toggleTheme('${t}')" role="checkbox" aria-checked="${active}" aria-label="Theme: ${escHtml(label)}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTheme('${t}')}">
+      <span>${escHtml(label)}</span><small>(${count})</small>
+    </div>`;
+  }).join('');
+
+  const totalAvail = getPool().length;
+
+  app.innerHTML = `
+    <div class="card">
+      <h2 style="margin-bottom:18px;">Quiz Settings</h2>
+
+      <div class="setting-group">
+        <label>Mode</label>
+        <div class="radio-group">
+          <label class="check-label"><input type="radio" name="mode" value="mc" ${state.mode==='mc'?'checked':''} onchange="state.mode=this.value" aria-label="Multiple Choice mode"> Multiple Choice</label>
+          <label class="check-label"><input type="radio" name="mode" value="type" ${state.mode==='type'?'checked':''} onchange="state.mode=this.value" aria-label="Type the Answer mode"> Type the Answer</label>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label>Number of Questions</label>
+        <div class="radio-group">
+          ${[10,20,50,'all'].map(n => `<label class="check-label"><input type="radio" name="numQ" value="${n}" ${state.numQuestions==n?'checked':''} onchange="state.numQuestions=this.value==='all'?'all':+this.value"> ${n==='all'?`All (${totalAvail})`:n}</label>`).join('')}
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="toggle-row">
+          <div>
+            <label style="margin-bottom:0">Strength-based prioritization</label>
+            <small>Weak words appear more often</small>
+          </div>
+          <label class="switch"><input type="checkbox" ${state.strengthPriority?'checked':''} onchange="state.strengthPriority=this.checked;render()" aria-label="Strength-based prioritization" role="switch"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="toggle-row">
+          <div>
+            <label style="margin-bottom:0">Accept without diacritics</label>
+            <small>"zolty" accepted for "żółty"</small>
+          </div>
+          <label class="switch"><input type="checkbox" ${state.acceptNoDiacritics?'checked':''} onchange="state.acceptNoDiacritics=this.checked" aria-label="Accept without diacritics" role="switch"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label>Source</label>
+        <div class="radio-group">
+          ${['','busuu','duolingo','both'].map(s => `<label class="check-label"><input type="radio" name="source" value="${s}" ${state.selectedSource===s?'checked':''} onchange="state.selectedSource=this.value;render()"> ${s||'All'}</label>`).join('')}
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label>Themes</label>
+        <div class="theme-actions">
+          <button onclick="selectAllThemes()">Select all</button>
+          <button onclick="selectNoThemes()">Select none</button>
+        </div>
+        <div class="theme-grid">${themeChips}</div>
+      </div>
+
+      <div style="text-align:center;margin-top:20px;">
+        <button class="btn btn-primary" onclick="startQuiz()" ${totalAvail<2?'disabled title="Need at least 2 words"':''}>
+          Start Quiz (${Math.min(state.numQuestions==='all'?totalAvail:state.numQuestions, totalAvail)} questions)
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleTheme(t) {
+  if (state.selectedThemes.has(t)) state.selectedThemes.delete(t);
+  else state.selectedThemes.add(t);
+  render();
+}
+function selectAllThemes() { state.selectedThemes = new Set(THEMES); render(); }
+function selectNoThemes() { state.selectedThemes.clear(); render(); }
+
+function startQuiz() {
+  state.questions = buildQuestions();
+  if (!state.questions.length) return;
+  state.currentQ = 0;
+  state.answers = [];
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.feedback = null;
+  state.answered = false;
+  state.screen = 'quiz';
+  render();
+}
+
+// Quiz screen
+function renderQuiz(app) {
+  const q = state.questions[state.currentQ];
+  const total = state.questions.length;
+  const pct = ((state.currentQ) / total * 100);
+  const streakClass = state.streak >= 5 ? 'hot' : '';
+
+  let content = '';
+  if (state.mode === 'mc') {
+    content = renderMC(q);
+  } else {
+    content = renderTypeAnswer(q);
+  }
+
+  let feedbackHtml = '';
+  if (state.feedback) {
+    const f = state.feedback;
+    feedbackHtml = `<div class="feedback ${f.type}">
+      ${f.message}
+      ${f.correctAnswer ? `<div class="correct-answer">${f.correctAnswer}</div>` : ''}
+    </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="card" id="quizCard">
+      <div class="quiz-info">
+        <span>Question ${state.currentQ+1} / ${total}</span>
+        <span class="streak ${streakClass}">${state.streak ? 'Streak: '+state.streak : ''}</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="question-word">${escHtml(q.english)}</div>
+      <div class="question-type">${escHtml(q.type)} &middot; ${escHtml((THEME_LABELS[q.theme]||q.theme).replace(/_/g,' '))}</div>
+      ${content}
+      ${feedbackHtml}
+      <div style="display:flex;justify-content:space-between;margin-top:16px;">
+        <button class="btn btn-outline btn-sm" onclick="skipQuestion()">Skip</button>
+        ${state.answered ? `<button class="btn btn-primary btn-sm" onclick="nextQuestion()" id="nextBtn">Next &rarr;</button>` : ''}
+      </div>
+    </div>
+  `;
+
+  if (state.mode === 'type' && !state.answered) {
+    const inp = document.getElementById('answerInput');
+    if (inp) setTimeout(() => inp.focus(), 50);
+  }
+  if (state.answered) {
+    const nb = document.getElementById('nextBtn');
+    if (nb) setTimeout(() => nb.focus(), 50);
+  }
+}
+
+function renderMC(q) {
+  if (!q._options) {
+    const pool = getPool();
+    const distractors = getDistractors(q, pool, 3);
+    q._options = shuffle([q, ...distractors]);
+  }
+  return `<div class="options">
+    ${q._options.map((o,i) => {
+      let cls = '';
+      if (state.answered) {
+        if (o.polish === q.polish) cls = 'correct';
+        else if (state.feedback && state.feedback._chosen === i) cls = 'wrong';
+      }
+      return `<button class="option-btn ${cls}" onclick="chooseMC(${i})" ${state.answered?'disabled':''} aria-label="Answer option: ${escHtml(o.polish)}">${escHtml(o.polish)}</button>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderTypeAnswer(q) {
+  return `<div class="type-answer-area">
+    <input type="text" id="answerInput" class="answer-input" placeholder="Type the Polish translation..."
+      ${state.answered?'disabled':''} onkeydown="if(event.key==='Enter'&&!state.answered)submitTyped()" aria-label="Type the Polish translation">
+    <div class="polish-keyboard">
+      ${['ą','ę','ć','ś','ź','ż','ł','ń','ó'].map(c => `<button onclick="insertChar('${c}')" ${state.answered?'disabled':''} aria-label="Insert ${c}">${c}</button>`).join('')}
+    </div>
+    ${!state.answered ? `<div class="submit-row"><button class="btn btn-primary" onclick="submitTyped()">Submit</button></div>` : ''}
+  </div>`;
+}
+
+function insertChar(c) {
+  const inp = document.getElementById('answerInput');
+  if (!inp || inp.disabled) return;
+  const start = inp.selectionStart, end = inp.selectionEnd;
+  inp.value = inp.value.substring(0,start) + c + inp.value.substring(end);
+  inp.selectionStart = inp.selectionEnd = start+1;
+  inp.focus();
+}
+
+function chooseMC(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.questions[state.currentQ];
+  const chosen = q._options[idx];
+  const correct = chosen.polish === q.polish;
+  const entry = {correct, userAnswer:chosen.polish, entry:q, diacriticIssue:false};
+  state.answers.push(entry);
+
+  if (correct) {
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    state.feedback = {type:'correct', message:'Correct!', _chosen:idx};
+  } else {
+    state.streak = 0;
+    state.feedback = {type:'wrong', message:'Wrong!', correctAnswer:'Correct: '+q.polish, _chosen:idx};
+  }
+  render();
+  animateCard(correct);
+}
+
+function submitTyped() {
+  if (state.answered) return;
+  const inp = document.getElementById('answerInput');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) return;
+  state.answered = true;
+  const q = state.questions[state.currentQ];
+  const result = checkAnswer(val, q);
+
+  const entry = {correct:result.correct, userAnswer:val, entry:q, diacriticIssue:result.diacriticIssue};
+  state.answers.push(entry);
+
+  if (result.correct && result.diacriticIssue) {
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    state.feedback = {type:'almost', message:'Almost! Watch the diacritics:', correctAnswer:result.correctSpelling || q.polish};
+  } else if (result.correct) {
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    state.feedback = {type:'correct', message:'Correct!'};
+  } else {
+    state.streak = 0;
+    state.feedback = {type:'wrong', message:'Wrong!', correctAnswer:'Correct: '+q.polish};
+  }
+  render();
+  animateCard(result.correct);
+}
+
+function animateCard(correct) {
+  const card = document.getElementById('quizCard');
+  if (card) { card.classList.add(correct?'pop':'shake'); setTimeout(()=>card.classList.remove('pop','shake'),500); }
+}
+
+function skipQuestion() {
+  const q = state.questions[state.currentQ];
+  state.answers.push({correct:false, userAnswer:'(skipped)', entry:q, diacriticIssue:false});
+  state.streak = 0;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  state.currentQ++;
+  state.feedback = null;
+  state.answered = false;
+  if (state.currentQ >= state.questions.length) {
+    state.screen = 'results';
+    saveQuizStats();
+  }
+  render();
+}
+
+function saveQuizStats() {
+  const s = loadStats();
+  s.totalQuizzes++;
+  const correct = state.answers.filter(a=>a.correct).length;
+  s.totalCorrect += correct;
+  s.totalAnswered += state.answers.length;
+  s.diacriticMisses += state.answers.filter(a=>a.diacriticIssue).length;
+  if (state.bestStreak > s.bestStreak) s.bestStreak = state.bestStreak;
+  saveStats(s);
+}
+
+// Results screen
+function renderResults(app) {
+  const total = state.answers.length;
+  const correct = state.answers.filter(a=>a.correct).length;
+  const pct = total ? Math.round(correct/total*100) : 0;
+  const diacriticIssues = state.answers.filter(a=>a.diacriticIssue).length;
+  const wrong = state.answers.filter(a=>!a.correct);
+
+  let wrongHtml = '';
+  if (wrong.length) {
+    wrongHtml = `<div class="wrong-list">
+      <h3>Mistakes (${wrong.length})</h3>
+      ${wrong.map(a => `<div class="wrong-item">
+        <div><span class="eng">${escHtml(a.entry.english)}</span> &rarr; <span class="pol">${escHtml(a.entry.polish)}</span></div>
+        <div class="user-ans">${escHtml(a.userAnswer)}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <h2 style="text-align:center;margin-bottom:10px;">Results</h2>
+      <div class="results-score">
+        <div class="big-score">${pct}%</div>
+        <div class="sub">${correct} of ${total} correct</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="val">${state.bestStreak}</div><div class="lbl">Best Streak</div></div>
+        <div class="stat-box"><div class="val">${diacriticIssues}</div><div class="lbl">Diacritic Issues</div></div>
+        <div class="stat-box"><div class="val">${wrong.length}</div><div class="lbl">Wrong</div></div>
+      </div>
+      ${wrongHtml}
+      <div class="results-links">
+        <h4>Continue Studying</h4>
+        <a href="vocabulary.html" class="results-link">📖 Review Vocabulary</a>
+        <a href="grammar.html" class="results-link">📚 Study Grammar</a>
+        <a href="quiz-pl-en.html" class="results-link">🔄 Try Polish → English</a>
+      </div>
+      <div class="results-actions">
+        ${wrong.length ? `<button class="btn btn-secondary" onclick="reviewMistakes()">Review Mistakes</button>` : ''}
+        <button class="btn btn-primary" onclick="goSettings()">New Quiz</button>
+      </div>
+    </div>
+  `;
+}
+
+function reviewMistakes() {
+  const wrong = state.answers.filter(a=>!a.correct);
+  if (!wrong.length) return;
+  state.questions = shuffle(wrong.map(a=>a.entry));
+  state.questions.forEach(q => delete q._options);
+  state.currentQ = 0;
+  state.answers = [];
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.feedback = null;
+  state.answered = false;
+  state.screen = 'quiz';
+  render();
+}
+
+function goSettings() {
+  state.screen = 'settings';
+  state.questions.forEach(q => delete q._options);
+  render();
+}
+
+// --- Breadcrumbs ---
+if (window.polishHub) {
+  const bc = window.polishHub.createBreadcrumbs([
+    {label: 'Home', href: 'index.html'},
+    {label: 'Quizzes', href: 'index.html'},
+    {label: 'English → Polish'}
+  ]);
+  const main = document.getElementById('main-content');
+  if (main) main.prepend(bc);
+}
+
+// Init
+render();
+</script>
+</body>
+</html>

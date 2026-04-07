@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(node:*)",
+      "Bash(ls -lh C:/Users/awsna/Desktop/MELIKENUR/POLISH/busuu/*.html)",
+      "Bash(wc:*)",
+      "Bash(sed -n '501,1051p' \"C:/Users/awsna/Desktop/MELIKENUR/POLISH/busuu/vocabulary.html\")",
+      "Read(//tmp/**)",
+      "Bash(cygpath:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/awsna/Desktop/MELIKENUR/POLISH/busuu/**)",
+      "Bash(cd:*)",
+      "Bash(awk:*)"
+    ]
+  }
+}

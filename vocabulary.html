@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Polish Vocabulary — Busuu</title>
+<title>Polish Vocabulary — Po Polsku</title>
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/layout.css">
@@ -275,6 +275,11 @@
 .type-pronoun { background: #fce7f3; color: #9d174d; }
 .type-conjunction { background: #ccfbf1; color: #115e59; }
 .type-particle { background: #f1f5f9; color: #475569; }
+.type-preposition { background: #e0f2fe; color: #0c4a6e; }
+.type-sentence { background: #f5f5f4; color: #57534e; }
+
+[data-theme="dark"] .type-preposition { background: #0c4a6e; color: #7dd3fc; }
+[data-theme="dark"] .type-sentence { background: #292524; color: #a8a29e; }
 
 [data-theme="dark"] .type-verb { background: #1e3a5f; color: #93c5fd; }
 [data-theme="dark"] .type-noun { background: #14532d; color: #86efac; }
@@ -285,6 +290,47 @@
 [data-theme="dark"] .type-pronoun { background: #500724; color: #f9a8d4; }
 [data-theme="dark"] .type-conjunction { background: #042f2e; color: #5eead4; }
 [data-theme="dark"] .type-particle { background: #1e293b; color: #94a3b8; }
+
+.source-badge {
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.source-busuu { background: #dbeafe; color: #1e40af; }
+.source-duolingo { background: #dcfce7; color: #166534; }
+.source-both { background: #fef3c7; color: #92400e; }
+[data-theme="dark"] .source-busuu { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .source-duolingo { background: #14532d; color: #86efac; }
+[data-theme="dark"] .source-both { background: #451a03; color: #fcd34d; }
+.source-custom { background: #f3e8ff; color: #6b21a8; }
+.source-other { background: #f3e8ff; color: #6b21a8; }
+[data-theme="dark"] .source-custom { background: #3b0764; color: #d8b4fe; }
+[data-theme="dark"] .source-other { background: #3b0764; color: #d8b4fe; }
+
+.strength-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.strength-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background var(--ease);
+}
+
+.strength-dot.filled {
+  background: var(--red);
+}
+
+.strength-dot.filled.s-strong { background: #22c55e; }
+.strength-dot.filled.s-medium { background: #f59e0b; }
+.strength-dot.filled.s-weak { background: var(--red); }
 
 /* No results */
 .no-results {
@@ -367,6 +413,123 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Add Word FAB + Modal */
+.fab-add {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(220,20,60,0.4);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab-add:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(220,20,60,0.5); }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--card-bg);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+
+.modal h2 { margin-bottom: 16px; font-size: 1.3rem; }
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.modal-tab {
+  padding: 8px 18px;
+  border: 2px solid var(--border);
+  border-radius: 99px;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.modal-tab.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+.modal-form label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.88rem; }
+.modal-form input, .modal-form select, .modal-form textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.modal-form input:focus, .modal-form select:focus, .modal-form textarea:focus {
+  border-color: var(--red);
+}
+.modal-form textarea { min-height: 160px; resize: vertical; font-family: monospace; }
+
+.modal-row { display: flex; gap: 12px; }
+.modal-row > div { flex: 1; }
+
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.modal-actions .btn { padding: 10px 22px; font-size: 0.95rem; }
+
+.dup-warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .dup-warning { background: #451a03; color: #fcd34d; }
+
+.add-result {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  margin-top: 12px;
+}
+.add-result.success { background: #dcfce7; color: #166534; }
+.add-result.error { background: #fee2e2; color: #991b1b; }
+[data-theme="dark"] .add-result.success { background: #14532d; color: #86efac; }
+[data-theme="dark"] .add-result.error { background: #450a0a; color: #fca5a5; }
+
+@media (max-width: 480px) {
+  .fab-add { bottom: 16px; right: 16px; width: 48px; height: 48px; font-size: 1.5rem; }
+  .modal { padding: 20px; }
+  .modal-row { flex-direction: column; gap: 0; }
+}
 </style>
 </head>
 <body>
@@ -381,6 +544,8 @@
     </div>
     <select class="filter-select" id="filter-theme" aria-label="Filter by theme"><option value="">All Themes</option></select>
     <select class="filter-select" id="filter-type" aria-label="Filter by word type"><option value="">All Types</option></select>
+    <select class="filter-select" id="filter-strength" aria-label="Filter by strength"><option value="">All Strengths</option></select>
+    <select class="filter-select" id="filter-source" aria-label="Filter by source"><option value="">All Sources</option><option value="busuu">Busuu</option><option value="duolingo">Duolingo</option><option value="both">Both</option></select>
   </div>
 
   <div class="vocab-container" id="main"></div>
@@ -409,25 +574,128 @@
   </div>
 </div>
 
+<button class="fab-add" onclick="openAddModal()" title="Add new words">+</button>
+<button class="fab-add" onclick="exportVocab()" title="Export vocabulary JSON" style="bottom:90px;font-size:1.2rem;width:44px;height:44px;background:var(--navy);">&#8595;</button>
+
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add New Words</h2>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('single')">Single Word</button>
+      <button class="modal-tab" onclick="switchTab('bulk')">Bulk Paste</button>
+    </div>
+
+    <div id="tab-single" class="modal-form">
+      <label for="add-polish">Polish</label>
+      <input type="text" id="add-polish" placeholder="e.g. dom" autocomplete="off">
+      <label for="add-english">English</label>
+      <input type="text" id="add-english" placeholder="e.g. house, home" autocomplete="off">
+      <div class="modal-row">
+        <div>
+          <label for="add-type">Type</label>
+          <select id="add-type">
+            <option value="noun">Noun</option>
+            <option value="verb">Verb</option>
+            <option value="adjective">Adjective</option>
+            <option value="adverb">Adverb</option>
+            <option value="pronoun">Pronoun</option>
+            <option value="preposition">Preposition</option>
+            <option value="conjunction">Conjunction</option>
+            <option value="phrase">Phrase</option>
+          </select>
+        </div>
+        <div>
+          <label for="add-theme">Theme</label>
+          <select id="add-theme"></select>
+        </div>
+      </div>
+      <div id="single-dup-check"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="addSingleWord()">Add Word</button>
+      </div>
+      <div id="single-result"></div>
+    </div>
+
+    <div id="tab-bulk" class="modal-form" style="display:none">
+      <label for="bulk-text">Paste words (Duolingo format: word, translation, empty line)</label>
+      <textarea id="bulk-text" placeholder="dom
+house, home
+
+kot
+cat, the cat
+
+pies
+dog, a dog"></textarea>
+      <div class="modal-row">
+        <div>
+          <label for="bulk-theme">Default Theme</label>
+          <select id="bulk-theme"></select>
+        </div>
+        <div>
+          <label for="bulk-source">Source</label>
+          <select id="bulk-source">
+            <option value="duolingo">Duolingo</option>
+            <option value="busuu">Busuu</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="bulk-preview"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+        <button class="btn btn-outline" onclick="previewBulk()">Preview</button>
+        <button class="btn btn-primary" onclick="addBulkWords()">Add All</button>
+      </div>
+      <div id="bulk-result"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const VOCAB_DATA = VOCABULARY_DATA;
 
 const THEME_MAP = {
+  adjectives: { label: "Adjectives", icon: "📐" },
+  adverbs: { label: "Adverbs", icon: "⚡" },
+  animals: { label: "Animals", icon: "🐾" },
+  basic_grammar: { label: "Basic Grammar", icon: "🔤" },
+  basic_words: { label: "Basic Words", icon: "🔡" },
   body_health: { label: "Body & Health", icon: "🏥" },
+  clothing: { label: "Clothing", icon: "👕" },
   clothing_accessories: { label: "Clothing & Accessories", icon: "👗" },
   colors: { label: "Colors", icon: "🎨" },
+  conjunctions: { label: "Conjunctions", icon: "🔗" },
+  daily_actions: { label: "Daily Actions", icon: "🏃" },
   daily_routines: { label: "Daily Routines", icon: "☀️" },
+  directions: { label: "Directions", icon: "🧭" },
+  family: { label: "Family", icon: "👪" },
   family_relationships: { label: "Family & Relationships", icon: "👨‍👩‍👧" },
   food_cooking: { label: "Food & Cooking", icon: "🍳" },
+  food_drinks: { label: "Food & Drinks", icon: "🥤" },
+  food_plurals: { label: "Food & Plurals", icon: "🍎" },
+  grammar_forms: { label: "Grammar Forms", icon: "✏️" },
   grammar_sentences: { label: "Grammar Sentences", icon: "📝" },
   greetings_basics: { label: "Greetings & Basics", icon: "👋" },
   hobbies_activities: { label: "Hobbies & Activities", icon: "⚽" },
   home_furniture: { label: "Home & Furniture", icon: "🏠" },
+  home_objects: { label: "Home & Objects", icon: "🏡" },
+  names_identity: { label: "Names & Identity", icon: "🪪" },
   numbers: { label: "Numbers", icon: "🔢" },
+  people_society: { label: "People & Society", icon: "🏘️" },
   personality_appearance: { label: "Personality & Appearance", icon: "😊" },
+  places_locations: { label: "Places & Locations", icon: "📍" },
+  prepositions: { label: "Prepositions", icon: "↔️" },
+  professions_work: { label: "Professions & Work", icon: "👷" },
+  pronouns_possessives: { label: "Pronouns & Possessives", icon: "👤" },
+  pronouns_quantifiers: { label: "Pronouns & Quantifiers", icon: "🔢" },
+  question_words: { label: "Question Words", icon: "❓" },
   shopping: { label: "Shopping", icon: "🛍️" },
+  time_calendar: { label: "Time & Calendar", icon: "📅" },
   travel_transport: { label: "Travel & Transport", icon: "✈️" },
   useful_phrases: { label: "Useful Phrases", icon: "💬" },
+  verb_conjugations: { label: "Verb Conjugations", icon: "📖" },
+  verbs_actions: { label: "Verbs & Actions", icon: "💪" },
   weather_seasons: { label: "Weather & Seasons", icon: "🌤️" },
   work_school: { label: "Work & School", icon: "💼" }
 };
@@ -441,8 +709,12 @@ const TYPE_COLORS = {
   number: "type-number",
   pronoun: "type-pronoun",
   conjunction: "type-conjunction",
-  particle: "type-particle"
+  particle: "type-particle",
+  preposition: "type-preposition",
+  sentence: "type-sentence"
 };
+
+const STRENGTH_VAL = { strong: 3, medium: 2, weak: 1 };
 
 // Filter out sentences
 const vocab = VOCAB_DATA.filter(e => e.type !== "sentence");
@@ -468,22 +740,34 @@ function populateFilters() {
     typeSelect.appendChild(o);
   });
 
+  const strSelect = document.getElementById("filter-strength");
+  ["strong", "medium", "weak"].forEach(s => {
+    const o = document.createElement("option");
+    o.value = s;
+    o.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+    strSelect.appendChild(o);
+  });
 }
 
 function renderStats(filtered) {
   const bar = document.getElementById("stats-bar");
   const total = filtered.length;
   const byType = {};
+  const byStr = { strong: 0, medium: 0, weak: 0 };
+  const bySrc = { busuu: 0, duolingo: 0, both: 0 };
   filtered.forEach(e => {
     byType[e.type] = (byType[e.type] || 0) + 1;
+    byStr[e.strength]++;
+    if (e.source) bySrc[e.source]++;
   });
 
   let html = `<div class="stat-item total"><span class="stat-num">${total}</span> words</div>`;
-
-  const topTypes = Object.entries(byType).sort((a,b) => b[1]-a[1]).slice(0, 4);
-  topTypes.forEach(([t, c]) => {
-    html += `<div class="stat-item"><span class="stat-num">${c}</span> ${t}s</div>`;
-  });
+  html += `<div class="stat-item"><span class="stat-num" style="color:#3b82f6">${bySrc.busuu}</span> Busuu</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${bySrc.duolingo}</span> Duo</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${bySrc.both}</span> Both</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#22c55e">${byStr.strong}</span> strong</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#f59e0b">${byStr.medium}</span> medium</div>`;
+  html += `<div class="stat-item"><span class="stat-num" style="color:#ef4444">${byStr.weak}</span> weak</div>`;
 
   bar.innerHTML = html;
 }
@@ -492,16 +776,31 @@ function getFiltered() {
   const search = document.getElementById("search").value.toLowerCase().trim();
   const theme = document.getElementById("filter-theme").value;
   const type = document.getElementById("filter-type").value;
+  const strength = document.getElementById("filter-strength").value;
+  const source = document.getElementById("filter-source").value;
 
   return vocab.filter(e => {
     if (theme && e.theme !== theme) return false;
     if (type && e.type !== type) return false;
+    if (strength && e.strength !== strength) return false;
+    if (source && e.source !== source) return false;
     if (search) {
       const s = search;
       if (!e.polish.toLowerCase().includes(s) && !e.english.toLowerCase().includes(s)) return false;
     }
     return true;
   });
+}
+
+function makeStrengthDots(strength) {
+  const val = STRENGTH_VAL[strength] || 0;
+  const cls = "s-" + strength;
+  let html = '<div class="strength-dots" title="' + strength + '">';
+  for (let i = 0; i < 3; i++) {
+    html += `<div class="strength-dot ${i < val ? 'filled ' + cls : ''}"></div>`;
+  }
+  html += '</div>';
+  return html;
 }
 
 function render() {
@@ -565,7 +864,9 @@ function render() {
         <div class="word-polish">${escHtml(w.polish)}</div>
         <div class="word-english">${escHtml(w.english)}</div>
         <div class="word-meta">
+          <span class="source-badge source-${w.source || 'busuu'}">${w.source || 'busuu'}</span>
           <span class="type-badge ${TYPE_COLORS[w.type] || ''}">${w.type}</span>
+          ${makeStrengthDots(w.strength)}
         </div>
       </div>`;
     });
@@ -613,6 +914,8 @@ function toggleThemeSection(id, forceOpen) {
   });
   document.getElementById("filter-theme").addEventListener("change", render);
   document.getElementById("filter-type").addEventListener("change", render);
+  document.getElementById("filter-strength").addEventListener("change", render);
+  document.getElementById("filter-source").addEventListener("change", render);
 
   // Add breadcrumbs
   if (window.polishHub) {
@@ -624,6 +927,227 @@ function toggleThemeSection(id, forceOpen) {
     if (mainContent) mainContent.prepend(bc);
   }
 })();
+
+// ========== ADD WORD SYSTEM ==========
+// Custom words stored in localStorage, merged with VOCAB_DATA at runtime
+const CUSTOM_STORAGE_KEY = 'polishHub_customWords';
+
+function loadCustomWords() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveCustomWords(words) {
+  localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(words));
+}
+
+// Merge custom words into vocab on load
+(function mergeCustom() {
+  const custom = loadCustomWords();
+  if (custom.length) {
+    custom.forEach(w => {
+      if (!vocab.find(e => e.polish.toLowerCase() === w.polish.toLowerCase())) {
+        vocab.push(w);
+      }
+    });
+    render();
+  }
+})();
+
+// Populate theme selects in modal
+function populateModalThemes() {
+  const themes = [...new Set(vocab.map(e => e.theme))].sort();
+  ['add-theme', 'bulk-theme'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = themes.map(t =>
+      `<option value="${t}">${(THEME_MAP[t] || {}).label || t}</option>`
+    ).join('');
+  });
+}
+
+function openAddModal() {
+  populateModalThemes();
+  document.getElementById('addModal').classList.add('open');
+  document.getElementById('add-polish').focus();
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+  document.getElementById('single-result').innerHTML = '';
+  document.getElementById('bulk-result').innerHTML = '';
+  document.getElementById('single-dup-check').innerHTML = '';
+  document.getElementById('bulk-preview').innerHTML = '';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.modal-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('tab-single').style.display = tab === 'single' ? 'block' : 'none';
+  document.getElementById('tab-bulk').style.display = tab === 'bulk' ? 'block' : 'none';
+}
+
+// Duplicate check on input
+document.getElementById('add-polish').addEventListener('input', function() {
+  const val = this.value.toLowerCase().trim();
+  const dup = vocab.find(e => e.polish.toLowerCase() === val);
+  const el = document.getElementById('single-dup-check');
+  if (dup && val) {
+    el.innerHTML = `<div class="dup-warning">Already exists: <strong>${escHtml(dup.polish)}</strong> = ${escHtml(dup.english)} (${dup.source})</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+});
+
+function addSingleWord() {
+  const polish = document.getElementById('add-polish').value.trim();
+  const english = document.getElementById('add-english').value.trim();
+  const type = document.getElementById('add-type').value;
+  const theme = document.getElementById('add-theme').value;
+  const resultEl = document.getElementById('single-result');
+
+  if (!polish || !english) {
+    resultEl.innerHTML = '<div class="add-result error">Please fill in both Polish and English fields.</div>';
+    return;
+  }
+
+  const dup = vocab.find(e => e.polish.toLowerCase() === polish.toLowerCase());
+  if (dup) {
+    resultEl.innerHTML = `<div class="add-result error">Duplicate: "${escHtml(dup.polish)}" already exists.</div>`;
+    return;
+  }
+
+  const newWord = { polish, english, type, strength: 'weak', theme, source: 'custom' };
+  vocab.push(newWord);
+
+  const custom = loadCustomWords();
+  custom.push(newWord);
+  saveCustomWords(custom);
+
+  document.getElementById('add-polish').value = '';
+  document.getElementById('add-english').value = '';
+  resultEl.innerHTML = `<div class="add-result success">Added: <strong>${escHtml(polish)}</strong> = ${escHtml(english)}</div>`;
+  render();
+}
+
+function parseBulkText(text) {
+  const lines = text.split('\n');
+  const words = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (line && i + 1 < lines.length) {
+      const english = lines[i + 1].trim();
+      if (english) {
+        words.push({ polish: line, english });
+        i += 2;
+      } else {
+        i++;
+      }
+    } else {
+      i++;
+    }
+    while (i < lines.length && !lines[i].trim()) i++;
+  }
+  return words;
+}
+
+function previewBulk() {
+  const text = document.getElementById('bulk-text').value;
+  const parsed = parseBulkText(text);
+  const previewEl = document.getElementById('bulk-preview');
+
+  if (!parsed.length) {
+    previewEl.innerHTML = '<div class="add-result error">No words found. Use format: word, translation, empty line.</div>';
+    return;
+  }
+
+  let html = `<div style="margin:12px 0;font-size:0.88rem;"><strong>${parsed.length} words parsed:</strong></div>`;
+  let dupCount = 0;
+  parsed.forEach(w => {
+    const isDup = vocab.find(e => e.polish.toLowerCase() === w.polish.toLowerCase());
+    if (isDup) dupCount++;
+    html += `<div style="padding:4px 0;font-size:0.85rem;${isDup ? 'color:#92400e;' : ''}">
+      ${isDup ? '(dup) ' : ''}${escHtml(w.polish)} = ${escHtml(w.english)}
+    </div>`;
+  });
+  if (dupCount) {
+    html = `<div class="dup-warning">${dupCount} duplicate(s) will be skipped.</div>` + html;
+  }
+  previewEl.innerHTML = html;
+}
+
+function addBulkWords() {
+  const text = document.getElementById('bulk-text').value;
+  const theme = document.getElementById('bulk-theme').value;
+  const source = document.getElementById('bulk-source').value;
+  const parsed = parseBulkText(text);
+  const resultEl = document.getElementById('bulk-result');
+
+  if (!parsed.length) {
+    resultEl.innerHTML = '<div class="add-result error">No words to add.</div>';
+    return;
+  }
+
+  const custom = loadCustomWords();
+  let added = 0, skipped = 0;
+
+  parsed.forEach(w => {
+    const isDup = vocab.find(e => e.polish.toLowerCase() === w.polish.toLowerCase());
+    if (isDup) { skipped++; return; }
+
+    const newWord = {
+      polish: w.polish,
+      english: w.english,
+      type: detectType(w.polish, w.english),
+      strength: 'weak',
+      theme,
+      source
+    };
+    vocab.push(newWord);
+    custom.push(newWord);
+    added++;
+  });
+
+  saveCustomWords(custom);
+  document.getElementById('bulk-text').value = '';
+  document.getElementById('bulk-preview').innerHTML = '';
+  resultEl.innerHTML = `<div class="add-result success">Added ${added} words. ${skipped ? skipped + ' duplicates skipped.' : ''}</div>`;
+  render();
+}
+
+function detectType(polish, english) {
+  const pl = polish.toLowerCase();
+  const verbEndings = ['ać', 'ić', 'ować', 'eć', 'yć', 'ąć', 'ść'];
+  for (const e of verbEndings) {
+    if (pl.endsWith(e)) return 'verb';
+  }
+  if (english.toLowerCase().startsWith('to ')) return 'verb';
+  if (pl.includes(' ')) return 'phrase';
+  return 'noun';
+}
+
+// Export custom words as JSON download
+function exportVocab() {
+  const allWords = vocab.slice();
+  const blob = new Blob([JSON.stringify(allWords, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'vocabulary-export.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Close modal on overlay click
+document.getElementById('addModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddModal();
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeAddModal();
+});
 
 </script>
 
